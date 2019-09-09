@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>부산국제영화제 | 영화티저 콘테스트</title>
+  <link rel="stylesheet" type="text/css" href="./css/common.css">
+  <link rel="stylesheet" type="text/css" href="./fontawesome-free-5.1.0-web/css/all.css">
+  <script src="./js/jquery-latset.min.js"></script>
+  <script src="./js/common.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h3 class="logo"><a href="./">부산국제영화제</a></h3>
+      <nav class="gnb">
+        <input type="checkbox" id="menu">
+        <ul>
+          <li><a href="./sub0101.html">부산국제영화제</a>
+            <ul>
+              <li><a href="./sub0101.html">개최안내</a></li>
+              <li><a href="./sub0102.html">행사안내</a></li>
+            </ul>
+          </li>
+          <li><a href="#">출품신청</a></li>
+          <li><a href="#">상영일정</a></li>
+          <li><a href="#">상영작검색</a></li>
+          <li>
+            <a href="./sub0501.html">이벤트</a>
+            <ul>
+              <li><a href="./sub0501.html">영화티저 콘테스트</a></li>
+              <li><a href="#">콘테스트 참여하기</a></li>
+            </ul>
+          </li>
+        </ul>
+        <div class="membership">
+          <a href="#" class="btn btn__main">회원가입</a>
+          <a href="#" class="btn btn__main">로그인</a>
+        </div>
+        <label for="menu" class="gnb__mobile"><i class="fas fa-bars"></i></label> 
+      </nav>
+    </div>
+  </header>
+  <section class="site-visual sub">
+    <ul>
+      <li>
+        <span class="middle"></span><p class="site-visual__slogan">
+          <span class="left"><i class="fas fa-quote-left"></i></span>
+          뉴 커런츠 출신 감독들의 개막작과 폐막작
+          <span class="right"><i class="fas fa-quote-right"></i></span>
+        </p>
+      </li>
+      <li>
+        <span class="middle"></span><p class="site-visual__slogan">
+          <span class="left"><i class="fas fa-quote-left"></i></span>
+          아이콘 부문 신설, 선택과 집중
+          <span class="right"><i class="fas fa-quote-right"></i></span>
+        </p>
+      </li>
+      <li>
+        <span class="middle"></span><p class="site-visual__slogan">
+          <span class="left"><i class="fas fa-quote-left"></i></span>
+          아시아 여성감독 3인전
+          <span class="right"><i class="fas fa-quote-right"></i></span>
+        </p>
+      </li>
+      <li>
+        <span class="middle"></span><p class="site-visual__slogan">
+          <span class="left"><i class="fas fa-quote-left"></i></span>
+          한국영화 100년사, 위대한 정전 10선
+          <span class="right"><i class="fas fa-quote-right"></i></span>
+        </p>
+      </li>
+    </ul>
+  </section>
+  <section class="sub-content container teaser">
+    <h2 class="content__title">영화티저 콘테스트</h2>
+    <div class="video-editor">
+      <div class="video-wrap">
+        <div class="none"><span class="middle"></span><strong>동영상을 선택해주세요</strong></div>
+        <canvas width="800" height="450"></canvas>
+        <video width="800" height="450">
+          <source src="" type="">
+        </video>
+      </div>
+      <div class="video-editor__object">
+        <a href="#" class="draw" id="line">자유곡선</a>
+        <a href="#" class="draw" id="sqr">사각형</a>
+        <a href="#" class="draw" id="txt">텍스트</a>
+        <a href="#" class="draw" id="select">선택</a>
+        <a href="#" class="status" id="play">재생</a>
+        <a href="#" class="status" id="stop">정지</a>
+        <a href="#" class="event" id="all">전체 삭제</a>
+        <a href="#" class="event" id="one">선택 삭제</a>
+        <a href="#" class="event" id="down">다운로드</a>
+      </div>
+      <ul class="video-editor__option">
+        <li>
+          <p class="video-editor__list">
+            <span class="video-editor__label">색상</span>
+            <label class="fields__custom-radio gray">
+              <input type="radio" name="color" value="gray" checked>
+              <span>gray</span>
+            </label>
+            <label class="fields__custom-radio blue">
+              <input type="radio" name="color" value="blue">
+              <span>blue</span>
+            </label>
+            <label class="fields__custom-radio green">
+              <input type="radio" name="color" value="green">
+              <span>green</span>
+            </label>
+            <label class="fields__custom-radio yellow">
+              <input type="radio" name="color" value="yellow">
+              <span>yellow</span>
+            </label>
+          </p>
+        </li>
+        <li>
+          <p class="video-editor__list">
+            <span class="video-editor__label">선 두께</span>
+            <label class="fields__custom-radio">
+              <input type="radio" name="weight" value="3" checked>
+              <span>3px</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="weight" value="5">
+              <span>5px</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="weight" value="10">
+              <span>10px</span>
+            </label>
+          </p>
+        </li>
+        <li>
+          <p class="video-editor__list">
+            <span class="video-editor__label">글자크기</span>
+            <label class="fields__custom-radio">
+              <input type="radio" name="size" value="16" checked>
+              <span>16px</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="size" value="18">
+              <span>18px</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="size" value="24">
+              <span>24px</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="size" value="32">
+              <span>32px</span>
+            </label>
+          </p>
+        </li>
+      </ul>
+    </div>
+    <ul class="teaser__cover">
+      <li><a href="#" data-url="./movie/1.mp4"><img src="./image/cover1.jpg" alt="cover1"></a></li>
+      <li><a href="#" data-url="./movie/2.mp4"><img src="./image/cover2.jpg" alt="cover2"></a></li>
+      <li><a href="#" data-url="./movie/3.mp4"><img src="./image/cover3.jpg" alt="cover3"></a></li>
+      <li><a href="#" data-url="./movie/4.mp4"><img src="./image/cover4.jpg" alt="cover4"></a></li>
+      <li><a href="#" data-url="./movie/5.mp4"><img src="./image/cover5.jpg" alt="cover5"></a></li>
+    </ul>
+  </section>
+  <footer class="site-footer">
+    <div class="container"> 
+      <div class="footer__left">
+        <ul>
+          <li>부산사무국(48058) 부산시 해운대구 수영강변대로 120 영화의전당 비프힐 3층</li>
+          <li>지도전화 1688-3010</li>
+          <li>팩스 051-709-2299</li>
+        </ul>
+        <ul>
+          <li>서울사무소(03131) 서울특별시 종로구 율곡로 84 가든타워 1601호</li>
+          <li>지도전화 02-3675-5097</li>
+          <li>팩스 02-3675-5098</li>
+        </ul>
+        <p>ⓒ Busan International Film Festival</p>
+      </div>
+      <div class="footer__right">
+        <a href="#"><img src="./image/sns_i_facebook.png" alt="facebook" /></a>
+        <a href="#"><img src="./image/sns_i_instagram.png" alt="instagram" /></a>
+        <a href="#"><img src="./image/sns_i_link.png" alt="link" /></a>
+        <a href="#"><img src="./image/sns_i_twitter.png" alt="twitter" /></a>
+        <a href="#"><img src="./image/sns_i_youtube.png" alt="youtube" /></a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

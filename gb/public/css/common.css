@@ -4,7 +4,7 @@
 body{font-family:"Malgun Gothic";font-weight:100;font-size:15px;letter-spacing:-0.5px}
 *{margin:0;padding:0;}
 ul,li{list-style:none;}
-input,img,select,button,textarea{vertical-align:middle;font-family:inherit;letter-spacing:inherit}
+input,img,select,button,textarea,canvas,video{vertical-align:middle;font-family:inherit;letter-spacing:inherit}
 a{text-decoration:none;color:inherit;}
 fieldset{border:none;}
 img{max-width:100%;max-height:100%;}
@@ -17,7 +17,8 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 버튼 */
 .btn{color:#fff;padding:5px 10px;vertical-align:middle;border:none;font-size:13px;border-radius:3px;}
-.btn__main{background:#d30513;}
+.btn__main,
+.btn__default.active{background:#d30513;}
 .btn__default{background:#666;}
 .btn__black{background:#333;}
 .btn__full{width:100%;display:block;padding:5px 0;}
@@ -34,9 +35,9 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .fields__input{padding:5px;border:1px solid #ddd;color:#666;border-radius:3px;transition:0.5s;}
 .fields__input:focus{border-bottom:1px solid #d30513;}
 .fields__input.full{box-sizing:border-box;width:100%;}
-.fields__custom-radio{display:inline-block}
+.fields__custom-radio{display:inline-block;}
 .fields__custom-radio input{display:none;}
-.fields__custom-radio span{display:block;border:1px solid #ddd;padding:5px 10px;font-size:13px;transition:.3s;}
+.fields__custom-radio span{display:block;border:1px solid #ddd;padding:5px 10px;font-size:13px;transition:.3s;cursor:pointer;border-radius:3px;}
 .fields__custom-radio input:checked+span{border-color:#d30513;background:#d30513;color:#fff;}
 
 /* 사이트 상단 */
@@ -135,6 +136,33 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .event-intro dt i{vertical-align:top;font-size:10px;display:inline-block;}
 .event-intro dd+dt{margin-top:30px;}
 .event-intro dd{background:#f5f5f5;border-radius:3px;padding:15px;border:1px solid #ddd;}
+
+/* 영화티저 콘테스트 */
+.teaser__cover{display:flex;flex-flow:wrap;margin-top:40px;}
+.teaser__cover li{width:20%;box-sizing:border-box;padding:1%;}
+
+/* 비디오 에디터 */
+.video-editor{text-align:center;}
+.video-wrap{width:800px;height:450px;position:relative;margin:0 auto;}
+.video-wrap canvas{position:absolute;left:0;top:0;opacity:1;z-index:10;width:100%;}
+.video-wrap video{position:absolute;left:0;top:0;opacity:0;width:100%;}
+.video-wrap .none{position:absolute;left:0;right:0;top:0;bottom:0;z-index:20;background:#333;font-size:25px;color:#fff;}
+.video-editor__object{margin-top:20px;}
+.video-editor__object a{display:inline-block;background:#666;color:#fff;transition:.3s;border-radius:3px;padding:5px 10px;font-size:13px;}
+.video-editor__object a:hover,
+.video-editor__object a.active{background:#d30513;}
+.video-editor__list{margin-bottom:10px;}
+.video-editor__option{display:flex;justify-content:center;margin-top:10px;}
+.video-editor__option li+li{margin-left:30px;}
+
+.fields__custom-radio.gray span{color:#999;border-color:#999;}
+.fields__custom-radio.gray input:checked+span{background:#999;border-color:#999;}
+.fields__custom-radio.blue span{color:#09F;border-color:#09F;}
+.fields__custom-radio.blue input:checked+span{background:#09F;border-color:#09F;}
+.fields__custom-radio.green span{color:#0f9;border-color:#0f9;}
+.fields__custom-radio.green input:checked+span{background:#0f9;border-color:#0f9;}
+.fields__custom-radio.yellow span{color:#ed0;border-color:#ed0;}
+.fields__custom-radio.yellow input:checked+span{background:#ed0;border-color:#ed0;}
 
 @media (min-width:641px) {
   .container{width:1200px;margin:0 auto;}
