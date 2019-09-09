@@ -12,7 +12,7 @@ legend::before{content:"";display:inline-block;vertical-align:middle;margin-righ
 
 /* 레이아웃 요소 */
 .container{width:1200px;margin:0 auto;}
-span.middle{display:inline-block;vertical-align:middle;width:0;height:0;}
+span.middle{display:inline-block;vertical-align:middle;width:0;height:100%;}
 span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 버튼 */
@@ -58,6 +58,23 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 비주얼 영역 */
 .site-visual{min-width:1200px;}
+.site-visual ul{height:300px;position:relative;}
+.site-visual li{position:absolute;left:0;right:0;top:0;bottom:0;background:no-repeat center / cover;text-align:center;opacity:0;}
+.site-visual li::before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;display:block;background:#000;opacity:0.5;}
+.site-visual li:nth-child(1){background-image:url(../image/visual1.jpg);animation:slide 20s infinite;animation-delay:0s;}
+.site-visual li:nth-child(2){background-image:url(../image/visual2.jpg);animation:slide 20s infinite;animation-delay:5s;}
+.site-visual li:nth-child(3){background-image:url(../image/visual3.jpg);animation:slide 20s infinite;animation-delay:10s;}
+.site-visual li:nth-child(4){background-image:url(../image/visual4.jpg);animation:slide 20s infinite;animation-delay:15s;}
+.site-visual__slogan{position:relative;color:#fff;font-size:30px;font-weight:bold}
+.site-visual__slogan .left,
+.site-visual__slogan .right{font-size:15px;vertical-align:top}
+
+@keyframes slide{
+  0%{opacity:0;}
+  5%{opacity:1;}
+  30%{opacity:1;}
+  35%{opacity:0;}
+}
 
 /* 컨텐츠 영역 */
 .site-content{min-width:1200px;}
