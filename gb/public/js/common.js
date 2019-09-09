@@ -2,7 +2,8 @@ const data = {
   loaded: false,
   selected: null,
   status: null,
-  ctx: null
+  ctx: null,
+  video: null,
 }
 
 const selectObject = e => {
@@ -15,14 +16,15 @@ const selectObject = e => {
   if ($this.hasClass('active')) return
   const selected = data.objectType = e.target['id']
   switch (true) {
-    case $this.hasClass('status') :
-      data.status = selected
-    break
     case $this.hasClass('event') :
-
+    break
+    case $this.hasClass('status') :
+      data.video[selected]()
+      $this.parent().find('.status.active').removeClass('active')
+      $this.addClass('active')
     break
     default :
-      $this.parent().find('.active').removeClass('active')
+      $this.parent().find('.draw.active').removeClass('active')
       $this.addClass('active')
       data.selected = selected
     break
@@ -34,16 +36,26 @@ const selectCover = e => {
   const [src, type] = [target.dataset.url, 'video/mp4']
   const wrap = $('.video-wrap')
   const cvs = $('canvas', wrap)[0]
-  const video = $('video', wrap)[0]
+  const video = data.video = $('video', wrap)[0]
   data.ctx = data.ctx || cvs.getContext('2d')
   $('source', video).attr({ src, type })
+  $('.video-editor__object .active').removeClass('active')
   video.load()
-  video.oncanplay = e => {
-    $('.video-wrap .none').hide()
-    if (video.currentTime != 1) video.currentTime = 1
-    data.loaded = true
-    data.ctx.drawImage(video, 0, 0, 800, 450)
+  const timer = () => {
+    if (video.paused || video.ended) return;
+    draw()
+    setTimeout(timer)
   }
+  const draw = () => data.ctx.drawImage(video, 0, 0, 800, 450)    
+  video.addEventListener("play", timer)
+  video.addEventListener("canplay", e => {
+    $('.video-wrap .none').hide()
+    if (video.currentTime === 0) video.currentTime = 0.1
+    else {
+      data.loaded = true
+      draw()
+    }
+  })
 }
 
 $(document)
