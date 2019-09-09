@@ -81,6 +81,7 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 /* 컨텐츠 영역 */
 .site-content{min-width:1200px;padding:100px 0;}
 .main-content+.main-content{margin-top:100px;}
+.sub-content{padding:100px 0;}
 .content__title{text-align:center;font-size:35px;line-height:100%;}
 .content__title::after{content:"";display:block;width:50px;margin:20px auto 30px;height:1px;background:#bebebe;}
 
@@ -118,12 +119,20 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 개최안내 */
 .summary dd{margin-top:20px;}
-.summary li+li{margin-top:20px;}
+.summary li+li{margin-top:30px;}
 .summary__image{height:450px;}
 .summary__image img{object-fit:cover;height:100%;width:100%;}
 .summary__title{font-size:27px;margin:40px 0;color:#666;text-align:center;}
 .summary__title span{vertical-align:top;font-size:13px;color:#d30513;}
 .summary__title strong{border-bottom:3px double #d30513;font-weight:inherit;color:#d30513;}
-.summary__label{font-size:21px;}
-.summary__label::before{content:"";display:inline-block;vertical-align:middle;width:8px;height:8px;border-radius:5px;background:#333;margin-right:5px;margin-top:-3px;}
-.summary__description{background:#f0f0f0;border-radius:3px;padding:10px;border:1px solid #ddd;font-size:19px;margin-top:5px;margin-left:10px;}
+.summary__label{font-size:19px;}
+.summary__label::before{content:"";display:inline-block;vertical-align:middle;width:5px;height:5px;border-radius:5px;background:#333;margin-right:5px;margin-top:-3px;}
+.summary__description{background:#f0f0f0;border-radius:3px;padding:10px;border:1px solid #ddd;font-size:17px;margin-top:5px;margin-left:10px;}
+
+/* 행사안내 */
+.event-intro.container{width:1000px;}
+.event-intro dl{line-height:200%;}
+.event-intro dt{font-size:19px;font-weight:bold;color:#d30513;margin-bottom:10px;}
+.event-intro dt i{vertical-align:top;font-size:10px;display:inline-block;}
+.event-intro dd+dt{margin-top:30px;}
+.event-intro dd{background:#f5f5f5;border-radius:3px;padding:15px;border:1px solid #ddd;}
