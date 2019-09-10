@@ -143,10 +143,10 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 비디오 에디터 */
 .video-editor{text-align:center;}
-.video-wrap{width:800px;height:450px;position:relative;margin:0 auto;}
-.video-wrap canvas{position:absolute;left:0;top:0;opacity:1;z-index:10;width:100%;}
-.video-wrap video{position:absolute;left:0;top:0;opacity:0;width:100%;}
-.video-wrap .none{position:absolute;left:0;right:0;top:0;bottom:0;z-index:20;background:#333;font-size:25px;color:#fff;}
+.video-wrap{width:800px;position:relative;margin:0 auto;}
+.video-wrap .none{position:absolute;left:0;right:0;top:0;height:450px;z-index:20;background:#333;font-size:25px;color:#fff;}
+.video-wrap svg{position:absolute;left:0;right:0;top:0;z-index:10;}
+.video-wrap__duration{margin:20px 0;}
 .video-editor__object{margin-top:20px;}
 .video-editor__object a{display:inline-block;background:#666;color:#fff;transition:.3s;border-radius:3px;padding:5px 10px;font-size:13px;}
 .video-editor__object a:hover,

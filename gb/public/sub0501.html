@@ -77,10 +77,14 @@
     <div class="video-editor">
       <div class="video-wrap">
         <div class="none"><span class="middle"></span><strong>동영상을 선택해주세요</strong></div>
-        <canvas width="800" height="450"></canvas>
+        <svg width="800" height="450"></svg>
         <video width="800" height="450">
           <source src="" type="">
         </video>
+        <div class="video-wrap__duration">
+          <span id="current">00:00:00:00</span> /
+          <span id="duration">00:00:00:00</span>
+        </div>
       </div>
       <div class="video-editor__object">
         <a href="#" class="draw" id="line">자유곡선</a>
