@@ -3,6 +3,9 @@ const data = {
   selected: null,
   status: null,
   video: null,
+  weight: 3,
+  size: 16,
+  color: '#999'
 }
 
 const selectObject = e => {
@@ -58,19 +61,59 @@ const selectCover = e => {
   }
 }
 
+const selectOption = e => {
+  const {name, value} = e.target
+  data[name] = value
+}
+
+const Drawing = class {
+  constructor (target) {
+    this._target = document.createElementNS('http://www.w3.org/2000/svg', target)
+  }
+  get () { return this._target }
+  set (attr) { for (const key in attr) this._target.setAttribute(key, attr[key])}
+  drawing () {}
+}
+const Line = class extends Drawing {
+  constructor () {
+    super('path')
+    this.d = []
+  }
+  drawing ({x, y}) {
+    const {d} = this._target.attributes
+    d.value += `${x} ${y} `
+  }
+}
+
+let nowTarget = null
 const draw = e => {
-  const video = data.video
   const wrap = $('.video-wrap')
+  if (['mouseout', 'mouseup', 'touchend'].indexOf(e.type) !== -1) {
+    nowTarget = null
+    $('.top', wrap).removeClass('active')
+    return false
+  }
+  const video = data.video
+  const {pageX, pageY} = e
+  const {top, left} = $(e.currentTarget).offset()
+  const [x, y] = [pageX - left, pageY - top]
   switch (e.type) {
     case 'mousedown' :
-      const {pageX, pageY} = e
-      const {top, left} = $(video).offset()
-      const [x, y] = [pageX - left, pageY - top]
-    break
-    case 'mouseout' :
-    case 'mouseup' :
+    case 'touchstart' :
+      nowTarget = new Line()
+      const {color, weight} = data
+      nowTarget.set({
+        'd': `M${x} ${y} L`,
+        'stroke': color,
+        'stroke-width': weight,
+        'fill': 'transparent'
+      })
+      e.target.appendChild(nowTarget.get())
+      $('.top', wrap).addClass('active')
     break
     case 'mousemove' :
+      if (!nowTarget) return
+      nowTarget.drawing({x, y})
     break
   }
 }
@@ -79,4 +122,6 @@ $(document)
   .on('click', 'a[href="#"]', _ => false)
   .on('click', '.video-editor__object a', selectObject)
   .on('click', '.teaser__cover a', selectCover)
-  .on('mousedown mouseup mouseout mousemove', '.video-wrap svg', draw)
+  .on('mousedown', '.video-wrap svg', draw)
+  .on('mouseup mouseout mousemove', '.video-wrap .top', draw)
+  .on('change', '.video-editor__option input', selectOption)
