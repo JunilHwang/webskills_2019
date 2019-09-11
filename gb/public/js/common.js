@@ -71,24 +71,93 @@ const Drawing = class {
     this._target = document.createElementNS('http://www.w3.org/2000/svg', target)
   }
   get () { return this._target }
-  set (attr) { for (const key in attr) this._target.setAttribute(key, attr[key])}
+  set ({x, y}) {
+    const target = this._target
+    const {color, weight} = data
+    target.setAttribute('stroke', color)
+    target.setAttribute('stroke-width', weight)
+    target.setAttribute('fill', 'none')
+    this._x = x, this._y = y
+  }
   drawing () {}
+  end () {}
 }
 const Line = class extends Drawing {
-  constructor () {
-    super('path')
-    this.d = []
+  constructor ({x, y}) { super('path'); this.set({x, y}) }
+  set ({x ,y }) {
+    super.set({x, y})
+    const target = this._target
+    target.setAttribute('d', `M${x} ${y}`)
   }
   drawing ({x, y}) {
     const {d} = this._target.attributes
-    d.value += `${x} ${y} `
+    d.value += `L${x} ${y} `
+  }
+}
+const Rect = class extends Drawing {
+  constructor ({ x, y }) { super('rect'); this.set({x, y}) }
+  set ({ x, y }) {
+    super.set({x, y})
+    const target = this._target
+    target.setAttribute('x', x)
+    target.setAttribute('y', y)
+  }
+  drawing ({ x, y }) {
+    const {_x, _y, _target: target} = this
+    const width = x - _x, height = y - _y
+    if (width > 0) {
+      target.setAttribute('width', width)
+    } else {
+      target.setAttribute('x', x)
+      target.setAttribute('width', -width)
+    }
+    if (height > 0) {
+      target.setAttribute('height', height)
+    } else {
+      target.setAttribute('y', y)
+      target.setAttribute('height', -height)
+    }
+  }
+  end () { this._target.setAttribute('fill', data.color) }
+}
+const Text = class {
+  constructor ({x, y}) {
+    const target = document.createElement('div')
+    const {size, color} = data
+    this.x = x, this.y = y
+    target.setAttribute('contentEditable', true)
+    target.style.cssText = `position:absolute;left:${x}px;top:${y}px;font-size:${size}px;color:${color};z-index:50`
+    target.innerHTML = ''
+    $(target)
+      .on('keydown', e => { if (e.keyCode === 13) e.target.blur() })
+      .on('blur', e => {
+        target.remove()
+        this.end(e.target.innerHTML)
+      })
+      .prependTo('.video-wrap')
+    setTimeout(() => target.focus())
+  }
+  end (text) {
+    const target = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    const {size, color} = data
+    const {x, y} = this
+    target.setAttribute('dominant-baseline', 'hanging')
+    target.setAttribute('x', x)
+    target.setAttribute('y', y+3)
+    target.setAttribute('fill', color)
+    target.setAttribute('font-size', size)
+    target.innerHTML = text
+    $('.video-wrap svg').append(target)
   }
 }
 
 let nowTarget = null
 const draw = e => {
+  if ($('.draw.active').length === 0) return false
+  const { selected } = data
   const wrap = $('.video-wrap')
-  if (['mouseout', 'mouseup', 'touchend'].indexOf(e.type) !== -1) {
+  if (selected !== 'Text' && nowTarget && nowTarget.end && ['mouseout', 'mouseup'].indexOf(e.type) !== -1) {
+    nowTarget.end()
     nowTarget = null
     $('.top', wrap).removeClass('active')
     return false
@@ -99,21 +168,16 @@ const draw = e => {
   const [x, y] = [pageX - left, pageY - top]
   switch (e.type) {
     case 'mousedown' :
-    case 'touchstart' :
-      nowTarget = new Line()
-      const {color, weight} = data
-      nowTarget.set({
-        'd': `M${x} ${y} L`,
-        'stroke': color,
-        'stroke-width': weight,
-        'fill': 'transparent'
-      })
-      e.target.appendChild(nowTarget.get())
-      $('.top', wrap).addClass('active')
+      if (['Line', 'Rect', 'Text'].indexOf(selected) !== -1) {
+        nowTarget = new ({Line, Rect, Text}[selected])({x, y})
+        if (selected !== 'Text') {
+          e.target.appendChild(nowTarget.get())
+          $('.top', wrap).addClass('active')
+        }
+      }
     break
     case 'mousemove' :
-      if (!nowTarget) return
-      nowTarget.drawing({x, y})
+      if (nowTarget && nowTarget.drawing) nowTarget.drawing({x, y})
     break
   }
 }
