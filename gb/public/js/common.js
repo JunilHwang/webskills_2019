@@ -8,7 +8,7 @@ const data = {
   color: '#999',
   clips: []
 }
-const selectObject = e => {
+const selectEvent = e => {
   e.preventDefault()
   if (data.loaded === false) {
     alert('비디오를 선택해주세요')
@@ -18,7 +18,20 @@ const selectObject = e => {
   if ($this.hasClass('active')) return
   const selected = data.objectType = e.target['id']
   switch (true) {
-    case $this.hasClass('event') :
+    case selected === 'one' :
+      const clip = $('.timeline li.active'), index = clip.index()
+      if (index === -1) {
+        alert('선택된게 없습니다.')
+        return
+      }
+      clip.remove()
+      data.clips[index].el.remove()
+      data.clips.splice(index, 1)
+    break
+    case selected === 'all' :
+      $('.timeline li').remove()
+      data.clips.forEach(v => v.el.remove())
+      data.clips = []
     break
     case $this.hasClass('status') :
       data.video[selected]()
@@ -151,36 +164,37 @@ const Text = class {
     drawEnd(target)
   }
 }
-let nowTarget = null
-const draw = e => {
-  if ($('.draw.active').length === 0) return false
-  const { selected } = data
-  const wrap = $('.video-wrap')
-  if (selected !== 'Text' && nowTarget && nowTarget.end && ['mouseout', 'mouseup'].indexOf(e.type) !== -1) {
-    nowTarget.end()
-    nowTarget = null
-    $('.top', wrap).removeClass('active')
-    return false
-  }
-  const video = data.video
-  const {pageX, pageY} = e
-  const {top, left} = $(e.currentTarget).offset()
-  const [x, y] = [pageX - left, pageY - top]
-  switch (e.type) {
-    case 'mousedown' :
-      if (['Line', 'Rect', 'Text'].indexOf(selected) !== -1) {
-        nowTarget = new ({Line, Rect, Text}[selected])({x, y})
-        if (selected !== 'Text') {
-          e.target.appendChild(nowTarget.get())
-          $('.top', wrap).addClass('active')
+const draw = (() => {
+  let nowTarget = null
+  return e => {
+    if ($('.draw.active').length === 0) return false
+    const { selected } = data
+    const wrap = $('.video-wrap')
+    if (selected !== 'Text' && nowTarget && nowTarget.end && ['mouseout', 'mouseup'].indexOf(e.type) !== -1) {
+      nowTarget.end()
+      nowTarget = null
+      $('.top', wrap).removeClass('active')
+      return false
+    }
+    const {pageX, pageY} = e
+    const {top, left} = $(e.currentTarget).offset()
+    const [x, y] = [pageX - left, pageY - top]
+    switch (e.type) {
+      case 'mousedown' :
+        if (['Line', 'Rect', 'Text'].indexOf(selected) !== -1) {
+          nowTarget = new ({Line, Rect, Text}[selected])({x, y})
+          if (selected !== 'Text') {
+            e.target.appendChild(nowTarget.get())
+            $('.top', wrap).addClass('active')
+          }
         }
-      }
-    break
-    case 'mousemove' :
-      if (nowTarget && nowTarget.drawing) nowTarget.drawing({x, y})
-    break
+      break
+      case 'mousemove' :
+        if (nowTarget && nowTarget.drawing) nowTarget.drawing({x, y})
+      break
+    }
   }
-}
+})();
 const init = _ => {
   if ($('.timeline').length) $('.timeline').sortable()
 }
@@ -194,7 +208,7 @@ const sortClip = e => {
   })
   const temp = keys.map(v => data.clips[v])
   data.clips = temp
-  temp.forEach(({el}) => svg.append(el))
+  temp.forEach(({ el }) => svg.append(el))
 }
 const selectShapeReal = target => {
   const chk = target.attr('class') === 'active'
@@ -214,7 +228,6 @@ const selectShape = e => {
 const selectClip = e => {
   const clip = $(e.currentTarget)
   const shape = $(data.clips[clip.index()].el)
-  console.log(data.clips)
   selectWrapper(clip, shape)
 }
 const selectWrapper = (clip, shape) => {
@@ -222,6 +235,33 @@ const selectWrapper = (clip, shape) => {
   selectClipReal(clip)
   selectShapeReal(shape)
 }
+const moveShape = (() => {
+  let moving = false, x1, y1, target
+  return e => {
+    const wrap = $('.video-wrap')
+    const {pageX: x, pageY: y} = e
+    switch (e.type) {
+      case 'mouseup' :
+      case 'mouseout' :
+        moving = false
+        $('.move', wrap).removeClass('active')
+      break
+      case 'mousedown' :
+        $('.move', wrap).addClass('active')
+        const {beforeX, beforeY} = e.currentTarget.dataset
+        moving = true, x1 = x - (beforeX || 0), y1 = y - (beforeY || 0), target = e.currentTarget
+      break
+      case 'mousemove' :
+        if (moving) {
+          const moveX = x - x1, moveY = y - y1
+          target.setAttribute('transform', `translate(${moveX}, ${moveY})`)
+          target.setAttribute('data-before-x', moveX)
+          target.setAttribute('data-before-y', moveY)
+        }
+      break
+    }
+  }
+})();
 const timelineRange = ({start, end, duration}) => {
   const left = (start/duration) * 100
   const width = ((end - start)/duration) * 100
@@ -229,12 +269,14 @@ const timelineRange = ({start, end, duration}) => {
 }
 const timelineRender = arr => {
   $('.timeline').html(arr.map((v, k) => `
-    <li data-key="${k}"><div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div></li>
+      <li data-key="${k}">
+        <div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div>
+      </li>
   `).join(''))
 }
 $(init)
   .on('click', 'a[href="#"]', _ => false)
-  .on('click', '.video-editor__object a', selectObject)
+  .on('click', '.video-editor__object a', selectEvent)
   .on('click', '.teaser__cover a', selectCover)
   .on('mousedown', '.video-wrap svg', draw)
   .on('mouseup mouseout mousemove', '.video-wrap .top', draw)
@@ -242,3 +284,5 @@ $(init)
   .on('sortstop', '.timeline', sortClip)
   .on('click', '.timeline li', selectClip)
   .on('click', '.video-wrap svg *', selectShape)
+  .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
+  .on('mouseup mouseout mousemove', '.video-wrap .move', moveShape)

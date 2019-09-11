@@ -145,8 +145,10 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .video-editor{text-align:center;}
 .video-wrap{width:800px;position:relative;margin:0 auto;}
 .video-wrap .none{position:absolute;left:0;right:0;top:0;height:450px;z-index:20;background:#333;font-size:25px;color:#fff;}
-.video-wrap .top{position:absolute;left:0;right:0;top:0;height:450px;z-index:30;background:#000;opacity:0.1;display:none;}
-.video-wrap .top.active{display:block;}
+.video-wrap .top,
+.video-wrap .move{position:absolute;left:0;right:0;top:0;height:450px;z-index:30;background:#000;opacity:0.1;display:none;}
+.video-wrap .top.active,
+.video-wrap .move.active{display:block;}
 .video-wrap svg{position:absolute;left:0;right:0;top:0;z-index:10;}
 .video-wrap svg .active{outline:3px solid #d30513}
 .video-wrap__duration{margin:20px 0;}
