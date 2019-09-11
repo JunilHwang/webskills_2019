@@ -236,19 +236,18 @@ const selectWrapper = (clip, shape) => {
   selectShapeReal(shape)
 }
 const moveShape = (() => {
-  let moving = false, x1, y1, target
+  let moving = false, x1, y1, target, moved = 0
   return e => {
     const wrap = $('.video-wrap')
     const {pageX: x, pageY: y} = e
+    const {beforeX, beforeY} = e.currentTarget.dataset
     switch (e.type) {
       case 'mouseup' :
-      case 'mouseout' :
         moving = false
         $('.move', wrap).removeClass('active')
       break
       case 'mousedown' :
         $('.move', wrap).addClass('active')
-        const {beforeX, beforeY} = e.currentTarget.dataset
         moving = true, x1 = x - (beforeX || 0), y1 = y - (beforeY || 0), target = e.currentTarget
       break
       case 'mousemove' :
@@ -275,25 +274,23 @@ const timelineRender = arr => {
   `).join(''))
 }
 const resizeClip = (() => {
-  let resizing = false
-  let timeline = null
+  let resizing = false, beforeX
   return e => {
     const wrap = e.currentTarget
     const target = wrap.children[0]
     const index = $(wrap).index()
     switch (e.type) {
       case 'mousemove' :
-        const {offsetX: ox} = e
+        let x = e.offsetX + target.offsetLeft
+        if (beforeX < e.offsetX) x = e.offsetX
+        beforeX = x
         const {start, end, duration} = target.dataset
-        const w = ((start + end) / duration) * 800
+        const w = (end / duration) * 800
         if (!resizing) {
-          const chk = w - 20 < ox && ox < w + 20
+          const chk = w - 20 < x && x < w
           wrap.classList[chk ? 'add' : 'remove']('resizing')
-          timeline = timeline || $('.timeline')
-          timeline.sortable('option', 'disabled', chk)
         } else {
-          const {start, duration} = target.dataset
-          const end = (ox / 800) * duration
+          const end = (x / 800) * duration
           target.setAttribute('data-end', end)
           target.style.cssText = timelineRange({ start, end, duration })
           data.clips[index].end = end
@@ -302,13 +299,56 @@ const resizeClip = (() => {
       case 'mousedown' :
         if (wrap.classList.contains('resizing')) resizing = true
       break
+      case 'mouseup' :
       case 'click' :
         if (resizing) {
           resizing = false
           wrap.click()
         }
       break
-      case '' :
+    }
+  }
+})();
+const moveClip = (() => {
+  let moving = false, beforeX = 0, timeline = null, moved = 0
+  return e => {
+    const target = e.currentTarget
+    const clip = data.clips[$(target).parent().index()]
+    const {start, end, duration} = target.dataset
+    const {offsetX: ox} = e
+    timeline = timeline || $('.timeline')
+    switch (e.type) {
+      case 'mouseenter' : 
+      case 'mouseleave' :
+        timeline.sortable('option', 'disabled', e.type === 'mouseenter')
+      break
+      case 'mousemove' :
+        if (moving) {
+          const moveX = ((ox - beforeX)/800) * duration
+          const moveStart = start*1 + moveX
+          const moveEnd = end*1 + moveX
+          if (moveStart < 0 || moveEnd > duration) return
+          clip.start = moveStart
+          clip.end = moveEnd
+          target.setAttribute('data-start', moveStart)
+          target.setAttribute('data-end', moveEnd)
+          target.style.cssText = timelineRange(clip)
+        }
+      break
+      case 'mousedown' :
+        if (ox < target.clientWidth - 20) {
+          moving = true
+          moved = clip.start
+          beforeX = ox
+        }
+      break
+      case 'mouseup' :
+        moving = false
+      break
+      case 'click' :
+        if (moved !== clip.start) {
+          e.stopPropagation()
+        }
       break;
     }
   }
@@ -324,5 +364,6 @@ $(init)
   .on('click', '.timeline li', selectClip)
   .on('click', '.video-wrap svg *', selectShape)
   .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
-  .on('mouseup mouseout mousemove', '.video-wrap .move', moveShape)
-  .on('click mousedown mousemove', '.timeline li', resizeClip)
+  .on('mouseup mousemove', '.video-wrap .move', moveShape)
+  .on('click mouseup mousedown mousemove', '.timeline li', resizeClip)
+  .on('click mouseup mouseenter mouseleave mousedown mousemove', '.timeline div', moveClip)
