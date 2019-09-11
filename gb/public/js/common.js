@@ -265,7 +265,7 @@ const moveShape = (() => {
 const timelineRange = ({start, end, duration}) => {
   const left = (start/duration) * 100
   const width = ((end - start)/duration) * 100
-  return `left:${left}px;width:${width}%`
+  return `left:${left}%;width:${width}%`
 }
 const timelineRender = arr => {
   $('.timeline').html(arr.map((v, k) => `
@@ -274,6 +274,45 @@ const timelineRender = arr => {
       </li>
   `).join(''))
 }
+const resizeClip = (() => {
+  let resizing = false
+  let timeline = null
+  return e => {
+    const wrap = e.currentTarget
+    const target = wrap.children[0]
+    const index = $(wrap).index()
+    switch (e.type) {
+      case 'mousemove' :
+        const {offsetX: ox} = e
+        const {start, end, duration} = target.dataset
+        const w = ((start + end) / duration) * 800
+        if (!resizing) {
+          const chk = w - 20 < ox && ox < w + 20
+          wrap.classList[chk ? 'add' : 'remove']('resizing')
+          timeline = timeline || $('.timeline')
+          timeline.sortable('option', 'disabled', chk)
+        } else {
+          const {start, duration} = target.dataset
+          const end = (ox / 800) * duration
+          target.setAttribute('data-end', end)
+          target.style.cssText = timelineRange({ start, end, duration })
+          data.clips[index].end = end
+        }
+      break;
+      case 'mousedown' :
+        if (wrap.classList.contains('resizing')) resizing = true
+      break
+      case 'click' :
+        if (resizing) {
+          resizing = false
+          wrap.click()
+        }
+      break
+      case '' :
+      break;
+    }
+  }
+})();
 $(init)
   .on('click', 'a[href="#"]', _ => false)
   .on('click', '.video-editor__object a', selectEvent)
@@ -286,3 +325,4 @@ $(init)
   .on('click', '.video-wrap svg *', selectShape)
   .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
   .on('mouseup mouseout mousemove', '.video-wrap .move', moveShape)
+  .on('click mousedown mousemove', '.timeline li', resizeClip)

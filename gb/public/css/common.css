@@ -160,9 +160,10 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .video-editor__option{display:flex;justify-content:center;margin-top:10px;}
 .video-editor__option li+li{margin-left:30px;}
 .timeline{width:800px;margin:0 auto;}
-.timeline li{height:30px;border-radius:3px;background:#f5f5f5;cursor:pointer;overflow:hidden;position:relative;}
+.timeline li{height:30px;border-radius:3px;background:#f5f5f5;overflow:hidden;position:relative;}
 .timeline li+li{margin-top:10px;}
-.timeline div{background:#aaa;height:100%;transition:0.3s;position:absolute;left:0;width:100%;}
+.timeline div{background:#aaa;height:100%;position:absolute;left:0;width:100%;resize:horizontal}
+.timeline li.resizing{cursor:ew-resize}
 .timeline li.active div{background:#d30513}
 
 .fields__custom-radio.gray span{color:#999;border-color:#999;}
