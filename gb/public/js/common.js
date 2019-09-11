@@ -5,9 +5,9 @@ const data = {
   video: null,
   weight: 3,
   size: 16,
-  color: '#999'
+  color: '#999',
+  clips: []
 }
-
 const selectObject = e => {
   e.preventDefault()
   if (data.loaded === false) {
@@ -28,13 +28,13 @@ const selectObject = e => {
     default :
       $this.parent().find('.draw.active').removeClass('active')
       $this.addClass('active')
+      $('.video-wrap svg .active').attr('class', '')
+      $('.timeline li.active').removeClass('active')
       data.selected = selected
     break
   }
 }
-
 const twoNum = n => `0${n}`.substr(-2)
-
 const timeFormat = t => {
   const ms = ~~(t * 100) % 100
   const s = ~~t % 60
@@ -42,7 +42,6 @@ const timeFormat = t => {
   const h = ~~(t/3600) % 24
   return `${twoNum(h)}:${twoNum(m)}:${twoNum(s)}:${twoNum(ms)}`
 }
-
 const selectCover = e => {
   const target = e.currentTarget
   const [src, type] = [target.dataset.url, 'video/mp4']
@@ -60,12 +59,14 @@ const selectCover = e => {
     $('#current').html(timeFormat(video.currentTime))
   }
 }
-
 const selectOption = e => {
   const {name, value} = e.target
   data[name] = value
 }
-
+const drawEnd = (el, { duration } = data.video, start = 0, end = duration) => {
+  data.clips.push({ start, end, duration, el })
+  timelineRender([...data.clips])
+}
 const Drawing = class {
   constructor (target) {
     this._target = document.createElementNS('http://www.w3.org/2000/svg', target)
@@ -80,7 +81,7 @@ const Drawing = class {
     this._x = x, this._y = y
   }
   drawing () {}
-  end () {}
+  end () { drawEnd(this._target) }
 }
 const Line = class extends Drawing {
   constructor ({x, y}) { super('path'); this.set({x, y}) }
@@ -108,17 +109,15 @@ const Rect = class extends Drawing {
     if (width > 0) {
       target.setAttribute('width', width)
     } else {
-      target.setAttribute('x', x)
-      target.setAttribute('width', -width)
+      target.setAttribute('width', -width), target.setAttribute('x', x)
     }
     if (height > 0) {
       target.setAttribute('height', height)
     } else {
-      target.setAttribute('y', y)
-      target.setAttribute('height', -height)
+      target.setAttribute('height', -height), target.setAttribute('y', y)
     }
   }
-  end () { this._target.setAttribute('fill', data.color) }
+  end () { super.end(); this._target.setAttribute('fill', data.color) }
 }
 const Text = class {
   constructor ({x, y}) {
@@ -138,6 +137,7 @@ const Text = class {
     setTimeout(() => target.focus())
   }
   end (text) {
+    if (text.length === 0) return
     const target = document.createElementNS('http://www.w3.org/2000/svg', 'text')
     const {size, color} = data
     const {x, y} = this
@@ -148,9 +148,9 @@ const Text = class {
     target.setAttribute('font-size', size)
     target.innerHTML = text
     $('.video-wrap svg').append(target)
+    drawEnd(target)
   }
 }
-
 let nowTarget = null
 const draw = e => {
   if ($('.draw.active').length === 0) return false
@@ -181,11 +181,64 @@ const draw = e => {
     break
   }
 }
-
-$(document)
+const init = _ => {
+  if ($('.timeline').length) $('.timeline').sortable()
+}
+const sortClip = e => {
+  const childrens = Array.from(e.target.children)
+  const svg = $('.video-wrap svg').empty()
+  const keys = childrens.map((v, k) => {
+    const now = v.dataset.key
+    v.setAttribute('data-key', k)
+    return now
+  })
+  const temp = keys.map(v => data.clips[v])
+  data.clips = temp
+  temp.forEach(({el}) => svg.append(el))
+}
+const selectShapeReal = target => {
+  const chk = target.attr('class') === 'active'
+  $('.video-wrap svg .active').attr('class', '')
+  if (!chk) target.attr('class', 'active')
+}
+const selectClipReal = target => {
+  const chk = target.hasClass('active')
+  $('.timeline li.active').removeClass('active')
+  if (!chk) target.addClass('active')
+}
+const selectShape = e => {
+  const shape =  $(e.currentTarget)
+  const clip = $('.timeline li').eq(shape.index())
+  selectWrapper(clip, shape)
+}
+const selectClip = e => {
+  const clip = $(e.currentTarget)
+  const shape = $(data.clips[clip.index()].el)
+  console.log(data.clips)
+  selectWrapper(clip, shape)
+}
+const selectWrapper = (clip, shape) => {
+  $('#select.draw').click()
+  selectClipReal(clip)
+  selectShapeReal(shape)
+}
+const timelineRange = ({start, end, duration}) => {
+  const left = (start/duration) * 100
+  const width = ((end - start)/duration) * 100
+  return `left:${left}px;width:${width}%`
+}
+const timelineRender = arr => {
+  $('.timeline').html(arr.map((v, k) => `
+    <li data-key="${k}"><div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div></li>
+  `).join(''))
+}
+$(init)
   .on('click', 'a[href="#"]', _ => false)
   .on('click', '.video-editor__object a', selectObject)
   .on('click', '.teaser__cover a', selectCover)
   .on('mousedown', '.video-wrap svg', draw)
   .on('mouseup mouseout mousemove', '.video-wrap .top', draw)
   .on('change', '.video-editor__option input', selectOption)
+  .on('sortstop', '.timeline', sortClip)
+  .on('click', '.timeline li', selectClip)
+  .on('click', '.video-wrap svg *', selectShape)
