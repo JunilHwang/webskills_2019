@@ -236,19 +236,16 @@ const selectWrapper = (clip, shape) => {
   selectShapeReal(shape)
 }
 const moveShape = (() => {
-  let moving = false, x1, y1, target, moved = 0
+  let moving = false, x1, y1, target, moveChk = 0
   return e => {
     const wrap = $('.video-wrap')
     const {pageX: x, pageY: y} = e
     const {beforeX, beforeY} = e.currentTarget.dataset
     switch (e.type) {
-      case 'mouseup' :
-        moving = false
-        $('.move', wrap).removeClass('active')
-      break
       case 'mousedown' :
         $('.move', wrap).addClass('active')
         moving = true, x1 = x - (beforeX || 0), y1 = y - (beforeY || 0), target = e.currentTarget
+        moveChk = target.getAttribute('transform')
       break
       case 'mousemove' :
         if (moving) {
@@ -256,6 +253,13 @@ const moveShape = (() => {
           target.setAttribute('transform', `translate(${moveX}, ${moveY})`)
           target.setAttribute('data-before-x', moveX)
           target.setAttribute('data-before-y', moveY)
+        }
+      break
+      case 'mouseup' :
+        moving = false
+        $('.move', wrap).removeClass('active')
+        if (moveChk === target.getAttribute('transform')) {
+          $(target).click()
         }
       break
     }
