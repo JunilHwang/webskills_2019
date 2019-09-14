@@ -1,65 +1,5 @@
 const data = { loaded: false, selected: null, status: null, video: null, weight: 3, size: 16, color: '#999', clips: [] }
-const setAttr = (target, attr) => { for (const key in attr) { target.setAttribute(key, attr[key]) } }
-const selectEvent = e => {
-  e.preventDefault()
-  if (data.loaded === false) {
-    alert('비디오를 선택해주세요')
-    return false
-  }
-  const $this = $(e.target)
-  if ($this.hasClass('active')) return
-  const selected = e.target['id']
-  switch (true) {
-    case selected === 'one' :
-      const clip = $('.timeline li.active'), index = clip.index()
-      if (index === -1) {
-        alert('선택된게 없습니다.')
-        return
-      }
-      clip.remove()
-      data.clips[index].el.remove()
-      data.clips.splice(index, 1)
-    break
-    case selected === 'all' :
-      $('.timeline li').remove()
-      data.clips.forEach(v => v.el.remove())
-      data.clips = []
-    break
-    case $this.hasClass('status') :
-      data.video[selected]()
-      $this.parent().find('.status.active').removeClass('active')
-      $this.addClass('active')
-    break
-    default :
-      $this.parent().find('.draw.active').removeClass('active')
-      $this.addClass('active')
-      $('.video-wrap svg .active').attr('class', '')
-      $('.timeline li.active').removeClass('active')
-      data.selected = selected
-    break
-  }
-}
-const twoNum = n => `0${n}`.substr(-2)
-const timeFormat = t => [~~(t/3600)%24, ~~(t/60)%60, ~~t%60, ~~(t*100)%100].map(v => twoNum(v)).join(':')
-const selectCover = e => {
-  $('.video-editor__object .active').removeClass('active')
-  const target = e.currentTarget
-  const wrap = $('.video-wrap')
-  const video = data.video = wrap.find('video')[0]
-  video.setAttribute('src', target.dataset.url)
-  video.load()
-  video.oncanplay = _ => {
-    wrap.find('.none').hide()
-    data.loaded = true
-    $('#duration').html(timeFormat(video.duration))
-  }
-  video.ontimeupdate = _ => $('#current').html(timeFormat(video.currentTime))
-}
-const selectOption = (e, {name, value} = e.target) => data[name] = value
-const drawEnd = (el, { duration } = data.video, start = 0, end = duration) => {
-  data.clips.push({ start, end, duration, el })
-  timelineRender(data.clips)
-}
+
 const Drawing = class {
   constructor (target) { this._target = document.createElementNS('http://www.w3.org/2000/svg', target) }
   get () { return this._target }
@@ -113,6 +53,132 @@ const Text = class {
     drawEnd(target)
   }
 }
+const setAttr = (target, attr) => { for (const key in attr) { target.setAttribute(key, attr[key]) } }
+const twoNum = n => `0${n}`.substr(-2)
+const timeFormat = t => [~~(t/3600)%24, ~~(t/60)%60, ~~t%60, ~~(t*100)%100].map(v => twoNum(v)).join(':')
+const timelineRange = ({start, end, duration}) => `left:${(start/duration) * 100}%;width:${((end - start)/duration) * 100}%`
+const timelineRender = arr => {
+  $('.timeline ul').html(arr.map((v, k) => `
+      <li data-key="${k}">
+        <div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div>
+      </li>
+  `).join(''))
+}
+const selectEvent = e => {
+  e.preventDefault()
+  if (data.loaded === false) {
+    alert('비디오를 선택해주세요')
+    return false
+  }
+  const $this = $(e.target)
+  if ($this.hasClass('active')) return
+  const selected = e.target['id']
+  switch (true) {
+    case selected === 'one' :
+      const clip = $('.timeline li.active'), index = clip.index()
+      if (index === -1) {
+        alert('선택된게 없습니다.')
+        return
+      }
+      clip.remove()
+      data.clips[index].el.remove()
+      data.clips.splice(index, 1)
+      if (data.clips.length === 0) $('.timeline ul').empty()
+    break
+    case selected === 'all' :
+      data.clips.forEach(v => v.el.remove())
+      data.clips = []
+      $('.timeline ul').empty()
+    break
+    case selected === 'down' : donwloadVideo(); break
+    case $this.hasClass('status') :
+      data.video[selected]()
+      $this.parent().find('.status.active').removeClass('active')
+      $this.addClass('active')
+    break
+    default :
+      $this.parent().find('.draw.active').removeClass('active')
+      $this.addClass('active')
+      $('.video-wrap svg .active').attr('class', '')
+      $('.timeline li.active').removeClass('active')
+      data.selected = selected
+    break
+  }
+}
+const selectCover = (() => {
+  let timer = null
+  return e => {
+    clearTimeout(timer)
+    $('.video-editor__object .active').removeClass('active')
+    const target = e.currentTarget
+    const wrap = $('.video-wrap')
+    const video = data.video = wrap.find('video')[0]
+    video.setAttribute('src', target.dataset.url)
+    video.load()
+    video.oncanplay = _ => {
+      wrap.find('.none').hide()
+      data.loaded = true
+      $('#duration').html(timeFormat(video.duration))
+    }
+    timer = setInterval(() => {
+      $('#current').html(timeFormat(video.currentTime))
+      $('.timeline-current').css({
+        left: (video.currentTime / video.duration) * 800 + 'px'
+      })
+      showClip()
+    }, (1000 / 60))
+  }
+})();
+const sortClip = e => {
+  const childrens = Array.from(e.target.children)
+  const svg = $('.video-wrap svg').empty()
+  const keys = childrens.map((v, k) => {
+    const now = v.dataset.key
+    v.setAttribute('data-key', k)
+    return now
+  })
+  const temp = keys.map(v => data.clips[v])
+  data.clips = temp
+  temp.forEach(({ el }) => svg.append(el))
+}
+const showClip = () => {
+  const { clips } = data
+  const { currentTime: t } = data.video
+  clips.forEach(({ el, end, start }) => {
+    el.style.cssText = start <= t && t <= end ? '' : 'opacity:0;z-index:-1'
+  })
+}
+const selectShape = e => {
+  const shape =  $(e.currentTarget)
+  const clip = $('.timeline li').eq(shape.index())
+  selectWrapper(clip, shape)
+}
+const selectClip = e => {
+  const clip = $(e.currentTarget)
+  const shape = $(data.clips[clip.index()].el)
+  selectWrapper(clip, shape)
+}
+const selectWrapper = (clip, shape) => {
+  const clipChk = clip.hasClass('active')
+  const clipRange = $('#clipRange')
+  $('#select.draw').click()
+  $('.video-wrap svg .active').attr('class', '')
+  $('.timeline li.active').removeClass('active')
+  clipRange.removeClass('active')
+  if (!clipChk) {
+    clipRange.addClass('active')
+    shape.attr('class', 'active')
+    clip.addClass('active')
+    const {start, end} = clip.find('div')[0].dataset
+    $('#clipStart').html(timeFormat(start))
+    $('#clipEnd').html(timeFormat(end))
+  }
+}
+const selectOption = (e, {name, value} = e.target) => data[name] = value
+const drawEnd = (el, { duration } = data.video, start = 0, end = duration) => {
+  data.clips.push({ start, end, duration, el })
+  timelineRender(data.clips)
+}
 const draw = (() => {
   let nowTarget = null
   return e => {
@@ -140,46 +206,6 @@ const draw = (() => {
     }
   }
 })();
-const init = _ => {
-  if ($('.timeline').length) $('.timeline').sortable()
-}
-const sortClip = e => {
-  const childrens = Array.from(e.target.children)
-  const svg = $('.video-wrap svg').empty()
-  const keys = childrens.map((v, k) => {
-    const now = v.dataset.key
-    v.setAttribute('data-key', k)
-    return now
-  })
-  const temp = keys.map(v => data.clips[v])
-  data.clips = temp
-  temp.forEach(({ el }) => svg.append(el))
-}
-const selectShapeReal = target => {
-  const chk = target.attr('class') === 'active'
-  $('.video-wrap svg .active').attr('class', '')
-  if (!chk) target.attr('class', 'active')
-}
-const selectClipReal = target => {
-  const chk = target.hasClass('active')
-  $('.timeline li.active').removeClass('active')
-  if (!chk) target.addClass('active')
-}
-const selectShape = e => {
-  const shape =  $(e.currentTarget)
-  const clip = $('.timeline li').eq(shape.index())
-  selectWrapper(clip, shape)
-}
-const selectClip = e => {
-  const clip = $(e.currentTarget)
-  const shape = $(data.clips[clip.index()].el)
-  selectWrapper(clip, shape)
-}
-const selectWrapper = (clip, shape) => {
-  $('#select.draw').click()
-  selectClipReal(clip)
-  selectShapeReal(shape)
-}
 const moveShape = (() => {
   let moving = false, x, y, target, moveChk = 0
   return e => {
@@ -206,14 +232,6 @@ const moveShape = (() => {
     }
   }
 })();
-const timelineRange = ({start, end, duration}) => `left:${(start/duration) * 100}%;width:${((end - start)/duration) * 100}%`
-const timelineRender = arr => {
-  $('.timeline').html(arr.map((v, k) => `
-      <li data-key="${k}">
-        <div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div>
-      </li>
-  `).join(''))
-}
 const resizeClip = (() => {
   let resizing = false, beforeX
   return e => {
@@ -233,6 +251,7 @@ const resizeClip = (() => {
           target.setAttribute('data-end', end)
           target.style.cssText = timelineRange(target.dataset)
           data.clips[$(wrap).index()].end = end
+          $('#clipEnd').html(timeFormat(end))
         }
       break;
       case 'mousedown' :
@@ -252,19 +271,24 @@ const moveClip = (() => {
   return e => {
     const target = e.currentTarget
     const clip = data.clips[$(target).parent().index()]
-    const {start, end, duration} = target.dataset
+    let {start, end, duration} = target.dataset
+    start *= 1, end *= 1
     const {offsetX: ox} = e
-    timeline = timeline || $('.timeline')
+    timeline = timeline || $('.timeline ul')
     switch (e.type) {
       case 'mouseenter' : 
       case 'mouseleave' : timeline.sortable('option', 'disabled', e.type === 'mouseenter'); break
       case 'mousemove' :
         if (moving) {
-          const moveX = ((ox - beforeX)/800) * duration
-          const moveStart = start*1 + moveX
-          const moveEnd = end*1 + moveX
-          if (moveStart < 0 || moveEnd > duration) return
-          setAttr(target, { 'data-start': (clip.start = moveStart), 'data-end': (clip.end = moveEnd) })
+          let moveX = ((ox - beforeX)/800) * duration
+          if (start*1 + moveX <= 0) {
+            moveX += Math.abs(start + moveX)
+          } else if (end + moveX >= duration) {
+            moveX -= Math.abs((end + moveX) - duration)
+          }
+          setAttr(target, { 'data-start': (clip.start = start + moveX), 'data-end': (clip.end = end + moveX) })
+          $('#clipStart').html(timeFormat(clip.start))
+          $('#clipEnd').html(timeFormat(clip.end))
           target.style.cssText = timelineRange(clip)
         }
       break
@@ -279,17 +303,101 @@ const moveClip = (() => {
     }
   }
 })();
-$(init)
+const moveCurrent = (() => {
+  let moving = false, beforeX, beforeLeft
+  return e => {
+    switch (e.type) {
+      case 'mousedown' :
+        moving = true
+        beforeX = e.clientX
+        beforeLeft = parseInt(e.currentTarget.style.left || 0)
+      break;
+      case 'mousemove' :
+        if (!moving) return
+        let moved = beforeLeft + (e.clientX - beforeX)
+        if (moved < 0) moved = 0
+        else if(moved > 800) moved = 800
+        data.video.currentTime = (moved / 800) * data.video.duration
+      break;
+      case 'mouseup' :
+      case 'mouseleave' : if (moving) moving = false; break;
+    }
+  }
+})();
+const donwloadVideo = () => {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  data.clips.forEach(({ el, start, end }) => {
+    const clone = el.cloneNode(true)
+    setAttr(clone, { 'data-start': start, 'data-end': end })
+    svg.appendChild(clone)
+  })
+  setAttr(svg, { width: 800, height: 450 })
+  fetch(data.video.attributes.src.value).then(res => res.blob()).then(blob => {
+    const reader = new FileReader()
+    reader.readAsDataURL(blob)
+    reader.onload = function () {
+      let template = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+        <style>
+        .wrap{position:relative;width:800px;height:450px;}
+        .wrap svg{position:absolute;left:0;top:0;}
+        #player{position:absolute;left:50%;top:50%;margin-left:-25px;margin-top:-25px;background:#09F;color:#fff;width:50px;height:50px;display:block;z-index:100;line-height:50px;text-align:center;text-decoration:none;}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <a href="#" id="player">재생</a>
+          <video src="${reader.result}" width="800" height="450"></video>
+          ${svg.outerHTML}
+        </div>
+        <script>
+          const video = document.querySelector('video')
+          const svg = document.querySelector('svg')
+          player.onclick = () => {
+            video.play()
+            player.style.display = 'none'
+            return false
+          }
+          setInterval(() => {
+            const { currentTime: t } = video
+            Array.from(svg.children).forEach(v => {
+              const {start, end} = v.dataset
+              v.style.cssText = start <= t && t <= end ? '' : 'opacity:0;z-index:-1'
+            })
+          }, 1000 / 60)
+        </script>
+      </body>
+      </html>
+      `
+      const htmlBlob = new Blob([template], {type:'text/html'})
+      const link = document.createElement('a')
+      const date = new Date()
+      const yymmdd = [date.getFullYear(), date.getMonth()+1, date.getDate()].map(v => twoNum(v)).join('')
+      const target = $(`<a id="videoDown" href="${URL.createObjectURL(htmlBlob)}" download="movie-${yymmdd}"></a>`)
+      $('body').append(target)
+      target[0].click()
+      target.remove()
+    }
+  })
+}
+$(_ => { if ($('.timeline').length) $('.timeline ul').sortable() })
   .on('click', 'a[href="#"]', _ => false)
   .on('click', '.video-editor__object a', selectEvent)
   .on('click', '.teaser__cover a', selectCover)
   .on('mousedown', '.video-wrap svg', draw)
   .on('mouseup mouseout mousemove', '.video-wrap .top', draw)
   .on('change', '.video-editor__option input', selectOption)
-  .on('sortstop', '.timeline', sortClip)
+  .on('sortstop', '.timeline ul', sortClip)
   .on('click', '.timeline li', selectClip)
   .on('click', '.video-wrap svg *', selectShape)
   .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
   .on('mouseup mousemove', '.video-wrap .move', moveShape)
   .on('click mouseup mousedown mousemove', '.timeline li', resizeClip)
   .on('click mouseup mouseenter mouseleave mousedown mousemove', '.timeline div', moveClip)
+  .on('mousedown mousemove mouseleave mouseup', '.timeline-current', moveCurrent)
