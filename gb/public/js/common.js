@@ -335,7 +335,7 @@ const donwloadVideo = () => {
   fetch(data.video.attributes.src.value).then(res => res.blob()).then(blob => {
     const reader = new FileReader()
     reader.readAsDataURL(blob)
-    reader.onload = function () {
+    reader.onload = () => {
       let template = `
       <!DOCTYPE html>
       <html lang="en">
@@ -364,13 +364,13 @@ const donwloadVideo = () => {
             player.style.display = 'none'
             return false
           }
-          setInterval(() => {
+          video.ontimeupdate = () => {
             const { currentTime: t } = video
             Array.from(svg.children).forEach(v => {
               const {start, end} = v.dataset
               v.style.cssText = start <= t && t <= end ? '' : 'opacity:0;z-index:-1'
             })
-          }, 1000 / 60)
+          }
         </script>
       </body>
       </html>
