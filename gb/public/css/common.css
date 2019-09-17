@@ -16,7 +16,7 @@ span.middle{display:inline-block;vertical-align:middle;width:0;height:100%;}
 span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 버튼 */
-.btn{color:#fff;padding:5px 10px;vertical-align:middle;border:none;font-size:13px;border-radius:3px;cursor:pointer;}
+.btn{color:#fff;padding:5px 10px;vertical-align:middle;border:none;font-size:13px;border-radius:3px;cursor:pointer;display:inline-block;}
 .btn.full{width:100%;display:block;padding:10px 0;font-size:15px;text-align:center;font-weight:bold;}
 .btn.full+.btn.full{margin-top:5px;}
 .btn.mini{padding:3px 5px;}
@@ -186,7 +186,26 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .fields__custom-radio.yellow input:checked+span{background:#ed0;border-color:#ed0;}
 
 .login .fields,
-.join .fields{max-width:600px;margin:0 auto;}
+.join .fields,
+.movie-add .fields{max-width:600px;margin:0 auto;}
+
+.calendar{}
+.calendar__header{text-align:center;}
+.calendar__header h3{font-size:31px;font-weight:100;}
+.calendar__navigation{display:flex;justify-content:center;margin-top:10px;}
+.calendar__navigation a{margin:0 2px;}
+.calendar__body{border:2px solid #aaa;margin-top:20px;}
+.calendar__body ul{display:flex;}
+.calendar__body ul+ul{border-top:1px dotted #ddd;}
+.calendar__body li{width:calc(100% / 7);}
+.calendar__body li.now{background:#ffc;}
+.calendar__body li+li{border-left:1px dotted #ddd;}
+.calendar__body li:first-child{color:#f09;font-weight:bold;}
+.calendar__body li:last-child{color:#09F;font-weight:bold;}
+.calendar__date{padding:10px;}
+.calendar__date span{display:block;}
+.calendar__date div{height:100px;}
+.calendar__top li{line-height:40px;text-align:center;background:#f5f5f5;}
 
 @media (min-width:641px) {
   .container{width:1200px;margin:0 auto;}

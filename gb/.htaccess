@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteRule ^([^.]+)$ index.php?param=$1 [L]
+RewriteRule ^([^.]+)$ index.php?param=$1 [L,QSA]
 
 # 업로드 용량 확장
 php_value post_max_size 100M

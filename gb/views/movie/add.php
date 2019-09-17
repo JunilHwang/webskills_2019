@@ -1,4 +1,4 @@
-<section class="sub-content container join">
+<section class="sub-content container movie-add">
   <h2 class="content__title">출품신청</h2>
   <form action="" class="fields" method="post" enctype="multipart/form-data">
     <fieldset>
@@ -16,18 +16,6 @@
           <label>
             <span class="fields__list">영화 제목</span>
             <input type="text" name="subject" class="fields__input full" placeholder="영화 제목을 입력해주세요" required>
-          </label>
-        </li>
-        <li>
-          <label>
-            <span class="fields__list">영상 업로드</span>
-            <input type="file" name="video" class="fields__input full" accept="video/*" required>
-          </label>
-        </li>
-        <li>
-          <label>
-            <span class="fields__list">커버사진 업로드</span>
-            <input type="file" name="cover" class="fields__input full" accept="image/*" required>
           </label>
         </li>
         <li>
@@ -62,6 +50,18 @@
               <span>기타</span>
             </label>
           </div>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">영상 업로드</span>
+            <input type="file" name="video" class="fields__input full" accept="video/*" required>
+          </label>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">커버사진 업로드</span>
+            <input type="file" name="cover" class="fields__input full" accept="image/*" required>
+          </label>
         </li>
         <li class="fields__buttons">
           <button class="btn btn__main full">작성완료</button>
