@@ -8,7 +8,7 @@
         <li>
           <label>
             <span class="fields__list">아이디</span>
-            <input type="text" name="id" class="fields__input full" placeholder="아이디를 입력해주세요" required>
+            <input type="text" name="id" class="fields__input full" placeholder="아이디를 입력해주세요" required autofocus>
           </label>
         </li>
         <li>

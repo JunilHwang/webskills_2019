@@ -20,6 +20,7 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .btn.full{width:100%;display:block;padding:10px 0;font-size:15px;text-align:center;font-weight:bold;}
 .btn.full+.btn.full{margin-top:5px;}
 .btn.mini{padding:3px 5px;}
+.btn.big{font-size:17px;font-weight:bold;padding:10px 15px;}
 .btn__main,
 .btn__default.active{background:#d30513;}
 .btn__default{background:#666;}
@@ -187,7 +188,8 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 .login .fields,
 .join .fields,
-.movie-add .fields{max-width:600px;margin:0 auto;}
+.movie-add .fields,
+.schedule-add .fields{max-width:600px;margin:0 auto;}
 
 .calendar{}
 .calendar__header{text-align:center;}

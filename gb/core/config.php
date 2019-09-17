@@ -6,6 +6,7 @@ $action = $param[1] ?? NULL;
 $idx = $param[2] ?? NULL;
 $include_file = $action ?? $page;
 $member = $_SESSION['member'] ?? null;
+$isAdmin = isset($member) && $member->id === 'admin';
 
 $menu = [
   ['title'=>'부산국제영화제', 'url'=>'/intro/summary', 'child'=> [

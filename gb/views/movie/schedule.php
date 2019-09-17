@@ -63,5 +63,10 @@
         }
       ?>
     </div>
+    <?php if ($isAdmin) { ?>
+    <div class="btn__group right">
+      <a href="<?php echo HOME_URL?>/movie/schedule_add" class="btn btn__main big">상영일정등록</a>
+    </div>
+    <?php } ?>
   </section>
 </section>
