@@ -35,12 +35,13 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .fields__list+.fields__list{border-top:1px solid #ddd;}
 .fields__label{display:block;margin-bottom:5px;}
 .fields__input{padding:10px 5px;border:1px solid #ddd;color:#666;border-radius:3px;transition:0.3s;font-size:15px;}
+.fields__input::placeholder{color:#bbb;}
 .fields__input:focus{border-bottom:1px solid #d30513;outline:none;}
 .fields__input.full{box-sizing:border-box;width:100%;}
 .fields__buttons{padding-top:15px;}
 .fields__custom-radio{display:inline-block;}
 .fields__custom-radio input{display:none;}
-.fields__custom-radio span{display:block;border:1px solid #ddd;padding:5px 10px;font-size:13px;transition:.3s;cursor:pointer;border-radius:3px;}
+.fields__custom-radio span{display:block;border:1px solid #ddd;padding:5px 10px;font-size:13px;transition:.3s;cursor:pointer;border-radius:3px;background:#fff;}
 .fields__custom-radio input:checked+span{border-color:#d30513;background:#d30513;color:#fff;}
 
 /* 사이트 상단 */

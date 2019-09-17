@@ -21,11 +21,7 @@ switch ($action) {
     move(HOME_URL."/member/login");
   break;
   case 'login' :
-    if ($id == 'admin' && $pw == '1234') {
-      $member = (object)['id'=>'admin', 'name'=>'관리자'];
-    } else {
-      $member = fetch("SELECT id, name FROM member WHERE id = '{$id}' and pw = '{$pw}'");
-    }
+    $member = fetch("SELECT idx, id, name FROM member WHERE id = '{$id}' and pw = '{$pw}'");
     access($member, "아이디 또는 비밀번호가 일치하지 않습니다.");
     $_SESSION['member'] = $member;
     alert('로그인 되었습니다.');

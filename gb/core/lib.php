@@ -50,3 +50,18 @@ function fetchAll ($sql) {
 function rowCount ($sql) {
   return query($sql)->rowCount();
 }
+
+function getExt ($fileName) {
+  return strtolower(preg_replace("/(.*)\.(.*)/", "$2", $fileName));
+}
+
+function fileUpload ($file) {
+  if (!is_uploaded_file($file['tmp_name'])) return "";
+  $path = _ROOT_ . '/public/down';
+  if (!file_exists($path)) {
+    mkdir($path);
+  }
+  $fileName = time()."_".rand(0, 99999).".".getExt($file['name']);
+  move_uploaded_file($file['tmp_name'], $path.'/'.$fileName);
+  return $fileName;
+}
