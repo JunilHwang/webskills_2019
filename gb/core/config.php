@@ -20,4 +20,14 @@ $menu = [
     ['title'=>'콘테스트 참여하기', 'url'=>'/movie/assessment'],
   ]],
 ];
-
+switch ("{$page}_{$include_file}") {
+  case 'member_logout' :
+    session_destroy();
+    alert('로그아웃 되었습니다.');
+    move(HOME_URL.'/');
+  break;
+  case 'member_login' :
+  case 'member_join' :
+    access($member, "회원은 접근할 수 없습니다.");
+  break;
+}

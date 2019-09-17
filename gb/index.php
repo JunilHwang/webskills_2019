@@ -10,6 +10,7 @@
   include_once('./core/lib.php');
   include_once('./core/config.php');
   if (isset($_POST['action'])) {
+    extract($_POST);
     include_once("./core/{$page}_action.php");
     exit;
   }

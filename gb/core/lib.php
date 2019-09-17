@@ -14,7 +14,7 @@ function move ($url = false) {
 function access ($bool, $msg, $url = false) {
   if (!$bool) {
     alert($msg);
-    alert($url);
+    move($url);
   }
 }
 
@@ -29,7 +29,7 @@ function println ($el) {
 }
 
 function query ($sql, $arr = null) {
-  $db = new PDO("mysql:host=127.0.0.1;dbname=20190917;charset=utf8", "root", "xampp");
+  $db = new PDO("mysql:host=127.0.0.1;dbname=20190917;charset=utf8", "root", "");
   $res = $arr === null ? $db->query($sql) : $db->prepare($sql)->execute($arr);
   if (!$res) {
     println($sql);
