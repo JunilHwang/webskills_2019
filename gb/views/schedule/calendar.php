@@ -1,7 +1,8 @@
 <?php
   $y = $_GET['y'] ?? date("Y");
   $m = substr('0'.($_GET['m'] ?? date("m")), -2);
-  $uri = HOME_URL.'/movie/schedule';
+  $uri = HOME_URL.'/schedule/calendar';
+  $viewUri = HOME_URL.'/schedule/view/';
   $nextM = $m + 1;
   $prevM = $m - 1;
   $nextY = $prevY = $y;
@@ -18,9 +19,9 @@
   $last  = date("w", strtotime("{$y}-{$m}-{$total}"));
   $line  = ceil(($start + $total)/7);
 ?>
-<section class="sub-content container schedule">
+<section class="sub-content container calendar">
   <h2 class="content__title">상영일정</h2>
-  <section class="calendar">
+  <section>
     <header class="calendar__header">
       <h3>
         <?php echo $y ?>년
@@ -49,13 +50,25 @@
           for ($j = 0; $j < 7; $j++) {
             $startBeforeChk = ($i == 0 && $j < $start);
             $endAfterChk = ($i == $line - 1 && $j > $last);
-            $now = date("Y-m-d") === "{$y}-{$m}-" . substr("0{$day}", -2) ? ' class="now"' : '';
-            echo "<li{$now}>";
-            if ($startBeforeChk || $endAfterChk) continue;
-            echo '<div class="calendar__date">';
+            if ($startBeforeChk || $endAfterChk) {
+              echo '<li class="none"></li>'; continue;
+            }
+            $fullDate = $y.$m.substr("0{$day}", -2);
+            $now = date("Ymd") === $fullDate ? ' class="now"' : '';
+            echo "<li{$now} onclick=\"location.href = '{$viewUri}{$fullDate}'\">";
+            echo "<div class=\"calendar__date\">";
               echo '<span>'. ($day++) .'</span>';
               echo '<div>';
-              echo '<div>';
+              $sql = "
+                SELECT s.*, mv.subject
+                FROM schedule s JOIN movie mv ON s.mvidx = mv.idx
+                WHERE s.date = '{$fullDate}' order by start asc
+              ";
+              $rows = fetchAll($sql);
+              foreach ($rows as $row) {
+                echo "<p>{$row->subject}</p>";
+              } 
+              echo '</div>';
             echo '</div>';
             echo '</li>';
           }
@@ -65,7 +78,7 @@
     </div>
     <?php if ($isAdmin) { ?>
     <div class="btn__group right">
-      <a href="<?php echo HOME_URL?>/movie/schedule_add" class="btn btn__main big">상영일정등록</a>
+      <a href="<?php echo HOME_URL?>/schedule/add" class="btn btn__main big">상영일정등록</a>
     </div>
     <?php } ?>
   </section>

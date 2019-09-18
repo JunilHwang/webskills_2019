@@ -15,7 +15,7 @@
   <form action="" class="fields" method="post" enctype="multipart/form-data">
     <fieldset>
       <legend class="legend">상영일정등록 폼</legend>
-      <input type="hidden" name="action" value="schedule_insert">
+      <input type="hidden" name="action" value="insert">
       <ul>
         <li>
           <label>

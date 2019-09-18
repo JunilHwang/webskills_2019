@@ -1,6 +1,6 @@
 <section class="sub-content container movie-add">
   <h2 class="content__title">출품신청</h2>
-  <form action="" class="fields" method="post" enctype="multipart/form-data">
+  <form action="" class="fields" method="post">
     <fieldset>
       <legend class="legend">출품신청 폼</legend>
       <input type="hidden" name="action" value="movie_insert">
@@ -21,13 +21,13 @@
         <li>
           <label>
             <span class="fields__list">러닝타임</span>
-            <input type="number" name="duration" class="fields__input full" min="0" placeholder="러닝타임을 입력해주세요" required>
+            <input type="number" name="duration" class="fields__input full" min="0" placeholder="러닝타임을 입력해주세요" value="0" required>
           </label>
         </li>
         <li>
           <label>
             <span class="fields__list">제작년도</span>
-            <input type="text" name="date" class="fields__input full" placeholder="제작년도를 입력해주세요" required>
+            <input type="number" name="date" class="fields__input full" placeholder="제작년도를 입력해주세요" value="<?php echo date("Y")?>" min="0" required>
           </label>
         </li>
         <li>
@@ -50,18 +50,6 @@
               <span>기타</span>
             </label>
           </div>
-        </li>
-        <li>
-          <label>
-            <span class="fields__list">영상 업로드</span>
-            <input type="file" name="video" class="fields__input full" accept="video/*" required>
-          </label>
-        </li>
-        <li>
-          <label>
-            <span class="fields__list">커버사진 업로드</span>
-            <input type="file" name="cover" class="fields__input full" accept="image/*" required>
-          </label>
         </li>
         <li class="fields__buttons">
           <button class="btn btn__main full">작성완료</button>

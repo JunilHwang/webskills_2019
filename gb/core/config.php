@@ -14,7 +14,7 @@ $menu = [
     ['title'=>'행사안내', 'url'=>'/intro/event'],
   ]],
   ['title'=>'출품신청', 'url'=>'/movie/add'],
-  ['title'=>'상영일정', 'url'=>'/movie/schedule'],
+  ['title'=>'상영일정', 'url'=>'/schedule/calendar'],
   ['title'=>'상영작검색', 'url'=>'/movie/search'],
   ['title'=>'이벤트', 'url'=>'/movie/edit', 'child'=> [
     ['title'=>'영화티저 콘테스트', 'url'=>'/movie/edit'],
