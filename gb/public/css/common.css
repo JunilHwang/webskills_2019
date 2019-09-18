@@ -211,12 +211,16 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .calendar__date p{padding:5px;}
 .calendar__top li{line-height:40px;text-align:center;background:#f5f5f5;}
 
-.schedule-view{}
-.schedule-view article{display:flex;}
-.schedule-view article+article{margin-top:50px;}
-.schedule-view__range{width:30%;font-size:25px;}
-.schedule-view__detail{width:70%;border-top:1px solid #d30513;}
-.schedule-view__detail li{display:flex;border-bottom:1px solid #ddd;line-height:50px;}
+.movies article{display:flex;margin-top:50px;}
+.movies__search-frm ul{display:flex;align-items:center;margin-bottom:20px;}
+.movies__search-frm li+li{margin:0 0 0 50px;border:none;}
+.movies__search-frm .fields__input{padding:5px;font-size:13px;}
+.movies__search-frm__label{display:inline-block;margin-right:10px;}
+.movies__range{width:30%;font-size:25px;}
+.movies__detail{width:70%;border-top:1px solid #d30513;}
+.movies__detail li{display:flex;border-bottom:1px solid #ddd;line-height:50px;}
+.movies__count span{display:inline-block;margin-right:20px;}
+.movies__none{text-align:center;background:#fafafa;margin-top:50px;border:1px solid #aaa;padding:50px 0;font-size:25px;font-weight:bold;color:#aaa;border-radius:3px}
 .range__label{display:block;margin-bottom:10px;color:#d30513;}
 .range__label::before{content:"";display:inline-block;width:10px;height:10px;border-radius:10px;vertical-align:middle;background:#d30513;margin-right:10px;margin-top:-3px;}
 .range__description{font-size:30px;}
