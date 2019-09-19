@@ -28,9 +28,9 @@ function println ($el) {
   echo "<p>{$el}</p>";
 }
 
-function query ($sql, $arr = null) {
+function query ($sql, $arr = []) {
   $db = new PDO("mysql:host=127.0.0.1;dbname=20190917;charset=utf8", "root", "");
-  $res = $arr === null ? $db->query($sql) : $db->prepare($sql)->execute($arr);
+  $res = count($arr) ? $db->prepare($sql)->execute($arr) : $db->query($sql);
   if (!$res) {
     println($sql);
     print_pre($db->errorInfo());
@@ -39,16 +39,16 @@ function query ($sql, $arr = null) {
   return $res;
 }
 
-function fetch ($sql) {
-  return query($sql)->fetch(PDO::FETCH_OBJ);
+function fetch ($sql, $arr = []) {
+  return query($sql, $arr)->fetch(PDO::FETCH_OBJ);
 }
 
-function fetchAll ($sql) {
-  return query($sql)->fetchAll(PDO::FETCH_OBJ);
+function fetchAll ($sql, $arr = []) {
+  return query($sql, $arr)->fetchAll(PDO::FETCH_OBJ);
 }
 
-function rowCount ($sql) {
-  return query($sql)->rowCount();
+function rowCount ($sql, $arr = []) {
+  return query($sql, $arr)->rowCount();
 }
 
 function getExt ($fileName) {

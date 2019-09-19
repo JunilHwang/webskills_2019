@@ -324,7 +324,7 @@ const moveCurrent = (() => {
     }
   }
 })();
-const donwloadVideo = () => {
+const donwloadVideo = async () => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   data.clips.forEach(({ el, start, end }) => {
     const clone = el.cloneNode(true)
@@ -332,59 +332,58 @@ const donwloadVideo = () => {
     svg.appendChild(clone)
   })
   setAttr(svg, { width: 800, height: 450 })
-  fetch(data.video.attributes.src.value).then(res => res.blob()).then(blob => {
-    const reader = new FileReader()
-    reader.readAsDataURL(blob)
-    reader.onload = () => {
-      let template = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Document</title>
-        <style>
-        .wrap{position:relative;width:800px;height:450px;}
-        .wrap svg{position:absolute;left:0;top:0;}
-        #player{position:absolute;left:50%;top:50%;margin-left:-25px;margin-top:-25px;background:#09F;color:#fff;width:50px;height:50px;display:block;z-index:100;line-height:50px;text-align:center;text-decoration:none;}
-        </style>
-      </head>
-      <body>
-        <div class="wrap">
-          <a href="#" id="player">재생</a>
-          <video src="${reader.result}" width="800" height="450"></video>
-          ${svg.outerHTML}
-        </div>
-        <script>
-          const video = document.querySelector('video')
-          const svg = document.querySelector('svg')
-          player.onclick = () => {
-            video.play()
-            player.style.display = 'none'
-            return false
-          }
-          video.ontimeupdate = () => {
-            const { currentTime: t } = video
-            Array.from(svg.children).forEach(v => {
-              const {start, end} = v.dataset
-              v.style.cssText = start <= t && t <= end ? '' : 'opacity:0;z-index:-1'
-            })
-          }
-        </script>
-      </body>
-      </html>
-      `
-      const htmlBlob = new Blob([template], {type:'text/html'})
-      const link = document.createElement('a')
-      const date = new Date()
-      const yymmdd = [date.getFullYear(), date.getMonth()+1, date.getDate()].map(v => twoNum(v)).join('')
-      const target = $(`<a id="videoDown" href="${URL.createObjectURL(htmlBlob)}" download="movie-${yymmdd}"></a>`)
-      $('body').append(target)
-      target[0].click()
-      target.remove()
-    }
-  })
+  const blob = await fetch(data.video.attributes.src.value).then(res => res.blob())
+  const reader = new FileReader()
+  reader.readAsDataURL(blob)
+  reader.onload = () => {
+    let template = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>Document</title>
+      <style>
+      .wrap{position:relative;width:800px;height:450px;}
+      .wrap svg{position:absolute;left:0;top:0;}
+      #player{position:absolute;left:50%;top:50%;margin-left:-25px;margin-top:-25px;background:#09F;color:#fff;width:50px;height:50px;display:block;z-index:100;line-height:50px;text-align:center;text-decoration:none;}
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <a href="#" id="player">재생</a>
+        <video src="data:video/mp4;${reader.result.split(';')[1]}" width="800" height="450"></video>
+        ${svg.outerHTML}
+      </div>
+      <script>
+        const video = document.querySelector('video')
+        const svg = document.querySelector('svg')
+        player.onclick = () => {
+          video.play()
+          player.style.display = 'none'
+          return false
+        }
+        video.ontimeupdate = () => {
+          const { currentTime: t } = video
+          Array.from(svg.children).forEach(v => {
+            const {start, end} = v.dataset
+            v.style.cssText = start <= t && t <= end ? '' : 'opacity:0;z-index:-1'
+          })
+        }
+      </script>
+    </body>
+    </html>
+    `
+    const htmlBlob = new Blob([template], {type:'text/html'})
+    const link = document.createElement('a')
+    const date = new Date()
+    const yymmdd = [date.getFullYear(), date.getMonth()+1, date.getDate()].map(v => twoNum(v)).join('')
+    const target = $(`<a id="videoDown" href="${URL.createObjectURL(htmlBlob)}" download="movie-${yymmdd}"></a>`)
+    $('body').append(target)
+    target[0].click()
+    target.remove()
+  }
 }
 $(_ => { if ($('.timeline').length) $('.timeline ul').sortable() })
   .on('click', 'a[href="#"]', _ => false)

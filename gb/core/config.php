@@ -16,9 +16,9 @@ $menu = [
   ['title'=>'출품신청', 'url'=>'/movie/add'],
   ['title'=>'상영일정', 'url'=>'/schedule/calendar'],
   ['title'=>'상영작검색', 'url'=>'/movie/search'],
-  ['title'=>'이벤트', 'url'=>'/movie/edit', 'child'=> [
-    ['title'=>'영화티저 콘테스트', 'url'=>'/movie/edit'],
-    ['title'=>'콘테스트 참여하기', 'url'=>'/movie/assessment'],
+  ['title'=>'이벤트', 'url'=>'/movie/teaser', 'child'=> [
+    ['title'=>'영화티저 콘테스트', 'url'=>'/movie/teaser'],
+    ['title'=>'콘테스트 참여하기', 'url'=>'/movie/edit'],
   ]],
 ];
 switch ("{$page}_{$include_file}") {

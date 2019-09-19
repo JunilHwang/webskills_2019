@@ -16,11 +16,11 @@ span.middle{display:inline-block;vertical-align:middle;width:0;height:100%;}
 span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 버튼 */
-.btn{color:#fff;padding:5px 10px;vertical-align:middle;border:none;font-size:13px;border-radius:3px;cursor:pointer;display:inline-block;}
-.btn.full{width:100%;display:block;padding:10px 0;font-size:15px;text-align:center;font-weight:bold;}
+.btn{color:#fff;padding:5px 10px;vertical-align:middle;border:none;font-size:13px;border-radius:3px;cursor:pointer;display:inline-block;font-weight:bold;}
+.btn.full{width:100%;display:block;padding:10px 0;font-size:15px;text-align:center;}
 .btn.full+.btn.full{margin-top:5px;}
 .btn.mini{padding:3px 5px;}
-.btn.big{font-size:17px;font-weight:bold;padding:10px 15px;}
+.btn.big{font-size:17px;padding:10px 15px;}
 .btn__main,
 .btn__default.active{background:#d30513;}
 .btn__default{background:#666;}
@@ -144,7 +144,19 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 영화티저 콘테스트 */
 .teaser__cover{display:flex;flex-flow:wrap;margin-top:40px;}
-.teaser__cover li{width:20%;box-sizing:border-box;padding:1%;}
+.teaser__cover li{width:20%;box-sizing:border-box;padding:1%;cursor:pointer;}
+.teaser__name{font-size:19px;margin:10px 0;display:block;}
+.teaser__point{color:#d30513;}
+.teaser__video{position:relative;width:800px;margin:0 auto;}
+.teaser__video svg{position:absolute;left:0;top:0;}
+.teaser__player{position:absolute;display:block;width:100px;height:100px;top:calc(50% - 50px);left:calc(50% - 50px);font-size:100px;color:#fff;}
+.teaser__view>ul{display:flex;width:800px;margin:20px auto;justify-content:center;}
+.teaser__view>ul>li{display:flex;font-size:21px;}
+.teaser__view>ul>li+li{margin-left:50px;}
+.teaser__label{margin-right:10px;}
+
+/* 평가 폼 */
+.assessment{width:550px;margin:0 auto;}
 
 /* 비디오 에디터 */
 .video-editor{text-align:center;}

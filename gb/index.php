@@ -5,7 +5,7 @@
   define('CSS_URL', SRC_URL.'/css');
   define('JS_URL', SRC_URL.'/js');
   define('IMG_URL', SRC_URL.'/image');
-  define('DOWN_URL', SRC_URL.'/down');
+  define('MOVIE_URL', SRC_URL.'/movie');
 
   include_once('./core/lib.php');
   include_once('./core/config.php');
