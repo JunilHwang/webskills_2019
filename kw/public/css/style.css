@@ -1,0 +1,46 @@
+@charset "utf-8";
+
+/* 태그 초기화 */
+body{font-family:"Malgun Gothic";font-weight:100;font-size:15px;letter-spacing:-0.5px}
+*{margin:0;padding:0;}
+ul,li{list-style:none;}
+input,img,select,button,textarea,canvas,video{vertical-align:middle;font-family:inherit;letter-spacing:inherit}
+a{text-decoration:none;color:inherit;}
+fieldset{border:none;}
+img{max-width:100%;max-height:100%;}
+
+/* 레이아웃 요소 */
+.legend{font-size:25px;margin-bottom:10px;}
+.legend::before{content:"";display:inline-block;vertical-align:middle;margin-right:5px;width:5px;height:20px;background:#d30513;margin-top:-5px;}
+span.middle{display:inline-block;vertical-align:middle;width:0;height:100%;}
+span.middle+*{display:inline-block;vertical-align:middle;}
+
+/* 버튼 */
+.btn{color:#fff;padding:5px 10px;vertical-align:middle;border:none;font-size:13px;border-radius:3px;cursor:pointer;display:inline-block;font-weight:bold;}
+.btn.full{width:100%;display:block;padding:10px 0;font-size:15px;text-align:center;}
+.btn.full+.btn.full{margin-top:5px;}
+.btn.mini{padding:3px 5px;}
+.btn.big{font-size:17px;padding:10px 15px;}
+.btn__main,
+.btn__default.active{background:#d30513;}
+.btn__default{background:#666;}
+.btn__black{background:#333;}
+.btn__group{margin-top:40px;text-align:center;}
+.btn__group.right{text-align:right;}
+.btn__left.right{text-align:left;}
+
+/* 입력 영역 */
+.fields{background:#fafafa;border-radius:3px;border:1px solid #ddd;padding:30px;}
+.fields li+li{border-top:1px dotted #ddd;margin-top:15px;}
+.fields__list{display:block;cursor:pointer;padding:10px 0;}
+.fields__list+.fields__list{border-top:1px solid #ddd;}
+.fields__label{display:block;margin-bottom:5px;}
+.fields__input{padding:10px 5px;border:1px solid #ddd;color:#666;border-radius:3px;transition:0.3s;font-size:15px;}
+.fields__input::placeholder{color:#bbb;}
+.fields__input:focus{border-bottom:1px solid #d30513;outline:none;}
+.fields__input.full{box-sizing:border-box;width:100%;}
+.fields__buttons{padding-top:15px;}
+.fields__custom-radio{display:inline-block;}
+.fields__custom-radio input{display:none;}
+.fields__custom-radio span{display:block;border:1px solid #ddd;padding:5px 10px;font-size:13px;transition:.3s;cursor:pointer;border-radius:3px;background:#fff;}
+.fields__custom-radio input:checked+span{border-color:#d30513;background:#d30513;color:#fff;}
