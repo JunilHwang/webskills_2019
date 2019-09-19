@@ -104,6 +104,7 @@
       for (const key in attr) { target.setAttribute(key, attr[key]) }
       return target
     }
+    const getAttr = (target, attr) => target.attributes[attr].value
 
     // variables
     const cols = [...(new Array(80)).keys()]
@@ -131,7 +132,8 @@
       const colors = Object.entries(json.color)
       layout.html(`
         <div class="admin__canvas">
-          <div id="svgCanvasTop"></div>
+          <div id="svgCanvasTop1" class="svgCanvasTop"></div>
+          <div id="svgCanvasTop2" class="svgCanvasTop"></div>
           <svg id="svgCanvas" width="${width}" height="${height}">${road0.innerHTML}</svg>
           <div class="cols">${cols.map(v => `<span>${v+1}</span>`).join('')}</div>
           <div class="rows">${rows.map(v => `<span>${v+1}</span>`).join('')}</div>
@@ -161,12 +163,12 @@
         $('#svgCanvas').html(types[idx].innerHTML)
       }
       let rect1, rect2, attr1, attr2, initX, initY, drawState = false
-      const svgCanvas = $('#svgCanvas')
+      const svgCanvas = $('#svgCanvas'), svgCanvasTop1 = $('#svgCanvasTop1'), svgCanvasTop2 = $('#svgCanvasTop2')
       const convert = n => ~~(n/unit)*unit
       const drawStart = (x, y) => {
         initX = x, initY = y
         drawState = true
-        $('#svgCanvasTop').addClass('active')
+        svgCanvasTop1.addClass('active')
         attr1 = { stroke: '#666', 'stroke-width': 1, 'fill': 'none', x, y }
         attr2 = { 'fill': '#ffa', x: convert(x), y: convert(y) }
         rect1 = setAttr(createNS('rect'), attr1)
@@ -198,7 +200,8 @@
         rect1 = null
         rect2.setAttribute('fill', color)
         svgCanvas.append(rect2)
-        $('#svgCanvasTop').removeClass('active')
+
+        svgCanvasTop1.removeClass('active')
       }
       const draw = e => {
         const {pageX, pageY} = e
@@ -220,17 +223,51 @@
             drawing(x, y)
           break
           case 'mouseup' :
-          case 'mouseleave' :
             if (drawState) drawEnd()
           break
         }
       }
 
+      const move = (() => {
+        let selected, moveState, beforeX, beforeY, originX, originY, w, h
+        return e => {
+          const {pageX: x, pageY: y} = e
+          switch (e.type) {
+            case 'mousedown' :
+              if (moveState) return
+              e.stopPropagation();
+              [beforeX, beforeY, selected, moveState] = [x, y, e.currentTarget, true];
+              [originX, originY] = [getAttr(selected, 'x')*1, getAttr(selected, 'y')*1];
+              [w, h] = [getAttr(selected, 'width')*1, getAttr(selected, 'height')*1]
+              svgCanvasTop2.addClass('active')
+            break;
+            case 'mousemove' :
+              if (!moveState) return
+              const [moveX, moveY] = [originX + convert(x - beforeX), originY + convert(y - beforeY)]
+              const xChk = (w + moveX <= width) && (moveX >= 0)
+              const yChk = (h + moveY <= height) && (moveY >= 0)
+              const attr = {}
+              if (xChk) attr.x = moveX
+              if (yChk) attr.y = moveY
+              setAttr(selected, attr)
+            break;
+            case 'mouseleave' :
+            case 'mouseup' :
+              if (!moveState) return
+              moveState = false
+              svgCanvasTop2.removeClass('active')
+            break;
+          }
+        }
+      })();
+
       $(document)
         .on('change', '#colors', selectColor)
         .on('click', '#type img', selectType)
         .on('mousedown', '#svgCanvas', draw)
-        .on('mouseup mouseleave mousemove', '#svgCanvasTop', draw)
+        .on('mouseup mouseleave mousemove', '#svgCanvasTop1', draw)
+        .on('mousedown', '#svgCanvas rect', move)
+        .on('mouseup mouseleave mousemove', '#svgCanvasTop2', move)
     }
     app()
   </script>

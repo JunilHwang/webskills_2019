@@ -206,5 +206,5 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .cols>span{display:inline-block;width:15px;text-align:center;letter-spacing:-1px;}
 .rows{position:absolute;left:-15px;top:0;font-size:6px;width:15px;}
 .rows>span{display:block;text-align:center;line-height:15px;}
-#svgCanvasTop{display:none;position:absolute;left:0;right:0;top:0;bottom:0;}
-#svgCanvasTop.active{display:block;}
+.svgCanvasTop{display:none;position:absolute;left:0;right:0;top:0;bottom:0;}
+.svgCanvasTop.active{display:block;}
