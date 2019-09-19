@@ -123,6 +123,7 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .intro>div span{font-size:11px;vertical-align:top;display:inline-block;}
 
 /* 스폰서 */
+.sponser{overflow:hidden;}
 .sponser__wrap{margin:0 30px;position:relative;}
 .sponser input{display:none;}
 .sponser ul{width:calc(20% * 11);display:flex;transition:.5s;}
@@ -158,12 +159,14 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .gallery__sub-title{margin-bottom:10px;}
 .gallery__info strong{font-size:25px;}
 .gallery__info p{line-height:160%;font-size:17px;}
-.gallery__info a{position:absolute;right:30px;bottom:50px;font-size:20px;}
+.gallery__info a{position:absolute;right:30px;bottom:50px;font-size:20px;transition:.3s;}
+.gallery__info a:hover{color:#d30513;transform:scale(1.2);}
 .layer{display:none;position:fixed;left:0;right:0;top:0;bottom:0;z-index:100;text-align:center;}
 .layer:target{display:block;animation:layerOpen 0.5s;}
 .layer__background{position:absolute;left:0;right:0;top:0;bottom:0;background:#000;opacity:.7;}
 .layer>div{position:relative;z-index:10;text-align:center;width:1000px;cursor:default;}
-.layer__close{position:absolute;right:0;top:0;display:block;background:#d30513;color:#fff;padding:10px 15px;}
+.layer__close{position:absolute;right:0;top:0;display:block;background:#d30513;color:#fff;padding:10px 15px;transition:.3s;opacity:.5;}
+.layer__close:hover{opacity:1;}
 @keyframes layerOpen {
   from {opacity:0;} to {opacity:1;}
 }
@@ -185,3 +188,11 @@ span.middle+*{display:inline-block;vertical-align:middle;}
   99.99% {margin-top:-250px;}
   100% {margin-top:0px;}
 }
+
+/* 배너 */
+.banner{background:#f5f5f5;}
+.banner ul{display:flex;flex-flow:wrap;}
+.banner li{width:calc(25% - 10px);margin:5px;overflow:hidden}
+.banner a{display:block;}
+.banner img{transition:.3s;}
+.banner img:hover{transform:scale(1.1)}
