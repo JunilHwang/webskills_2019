@@ -86,8 +86,8 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 비주얼 영역 */
 .site-visual{overflow:hidden;}
-.site-visual ul{width:calc(100% * 4);display:flex;animation:slide 20s infinite;background:#666;}
-.site-visual li{width:calc(100% / 4);height:500px;background:no-repeat center / cover;position:relative;text-align:center;color:#fff;animation:scaleOut 5s infinite;animation-delay:4s}
+.site-visual ul{width:calc(100% * 4);display:flex;/*animation:slide 20s infinite;*/background:#666;}
+.site-visual li{width:calc(100% / 4);height:500px;background:no-repeat center / cover;position:relative;text-align:center;color:#fff;/*animation:scaleOut 5s infinite;animation-delay:4s*/}
 .site-visual li:before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;background:#000;opacity:.3;}
 .site-visual li:nth-child(1){background-image:url(../image/visual1.jpg);}
 .site-visual li:nth-child(2){background-image:url(../image/visual2.jpg);}
