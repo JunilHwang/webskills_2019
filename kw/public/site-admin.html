@@ -108,19 +108,19 @@
     // variables
     const cols = [...(new Array(80)).keys()]
     const rows = [...(new Array(40)).keys()]
-    const width = 800, height = 400
+    const width = 1200, height = 600, unit = 15
 
     // app functions
     const initSvg = (type = []) => {
       const svg = setAttr(createNS('svg'), {
         xmlns: 'http://www.w3.org/2000/svg', width, height
       })
-      const lineAttr = {stroke: '#ddd', strokeWidth: '1'}
-      const rectAttr = {width: 10, height: 10, fill: '#000000'}
+      const lineAttr = {stroke: '#ddd', 'stroke-width': '1'}
+      const rectAttr = {width: unit, height: unit, fill: '#000000'}
       svg.innerHTML = `
-        ${[...cols, 80].map(v => setAttr(createNS('line'), { x1: v*10, y1: 0, x2: v*10, y2: height, ...lineAttr }).outerHTML).join('')}
-        ${[...rows, 40].map(v => setAttr(createNS('line'), { x1: 0, y1: v*10, x2: width, y2: v*10, ...lineAttr }).outerHTML).join('')}
-        ${type.length ? type.map(([x, y]) => setAttr(createNS('rect'), { ...rectAttr, x: ((x-1)*10), y: ((y-1)*10)}).outerHTML).join('') : ''}
+        ${[...cols, 80].map(v => setAttr(createNS('line'), { x1: v*unit, y1: 0, x2: v*unit, y2: height, ...lineAttr }).outerHTML).join('')}
+        ${[...rows, 40].map(v => setAttr(createNS('line'), { x1: 0, y1: v*unit, x2: width, y2: v*unit, ...lineAttr }).outerHTML).join('')}
+        ${type.length ? type.map(([x, y]) => setAttr(createNS('rect'), { ...rectAttr, x: ((x-1)*unit), y: ((y-1)*unit)}).outerHTML).join('') : ''}
       `
       return svg
     }
@@ -130,20 +130,107 @@
       const {road1, road2, road3, ...json} = await fetch('./data/plan.json').then(res => res.json())
       const colors = Object.entries(json.color)
       layout.html(`
-        ${road0.outerHTML}
-        <div class="cols">${cols.map(v => `<span>${v+1}</span>`)}</div>
-        <div class="rows">${rows.map(v => `<span>${v+1}</span>`)}</div>
+        <div class="admin__canvas">
+          <div id="svgCanvasTop"></div>
+          <svg id="svgCanvas" width="${width}" height="${height}">${road0.innerHTML}</svg>
+          <div class="cols">${cols.map(v => `<span>${v+1}</span>`).join('')}</div>
+          <div class="rows">${rows.map(v => `<span>${v+1}</span>`).join('')}</div>
+        </div>
         <div>
-        
+          <select id="colors">
+            ${colors.map(([k, v]) => `<option value="${v}">${k}</option>`)}
+          </select>
+          <span id="area">0 ㎡</span>
+          <a href="#" id="saveSite" class="btn btn__main">저장</a>
+          <a href="#" id="deleteSite" class="btn btn__default">삭제</a>
         </div>
       `)
       const types = [road0, road1, road2, road3].map(v => initSvg(v))
       const typesImage = types.map(v => {
         const blob = new Blob([v.outerHTML], {type: 'image/svg+xml'})
         const src = URL.createObjectURL(blob)
-        return setAttr(create('img'), { src, width: '250' })
+        return setAttr(create('img'), { src, width: 295 })
       })
       type.html(typesImage.map(v => v.outerHTML).join(' '))
+
+
+      let color = $('#colors').val(), currentType = road0
+      const selectColor = e => color = e.currentTarget.value
+      const selectType = e => {
+        const idx = $(e.currentTarget).index()
+        $('#svgCanvas').html(types[idx].innerHTML)
+      }
+      let rect1, rect2, attr1, attr2, initX, initY, drawState = false
+      const svgCanvas = $('#svgCanvas')
+      const convert = n => ~~(n/unit)*unit
+      const drawStart = (x, y) => {
+        initX = x, initY = y
+        drawState = true
+        $('#svgCanvasTop').addClass('active')
+        attr1 = { stroke: '#666', 'stroke-width': 1, 'fill': 'none', x, y }
+        attr2 = { 'fill': '#ffa', x: convert(x), y: convert(y) }
+        rect1 = setAttr(createNS('rect'), attr1)
+        rect2 = setAttr(createNS('rect'), attr2)
+        svgCanvas.prepend(rect2)
+        svgCanvas.append(rect1)
+      }
+      const drawing = (x, y) => {
+        const w = x - initX, h = y - initY
+        const width = Math.abs(w), height = Math.abs(h)
+        let width2 = Math.abs(convert(x+unit) - convert(initX)),
+            height2 = Math.abs(convert(y+unit) - convert(initY))
+        if (w < 0) {
+          attr1.x = x
+          attr2.x = convert(x)
+          width2 += unit*2
+        }
+        if (h < 0) {
+          attr1.y = y
+          attr2.y = convert(y)
+          height2 += unit*2
+        }
+        setAttr(rect1, {...attr1, width, height})
+        setAttr(rect2, {...attr2, width: width2, height: height2})
+      }
+      const drawEnd = () => {
+        drawState = false
+        rect1.remove()
+        rect1 = null
+        rect2.setAttribute('fill', color)
+        svgCanvas.append(rect2)
+        $('#svgCanvasTop').removeClass('active')
+      }
+      const draw = e => {
+        const {pageX, pageY} = e
+        const {top, left} = $(e.currentTarget).offset()
+        let x, y
+        switch (e.type) {
+          case 'mousedown' :
+            if (e.type === 'mousedown' && color === '') {
+              alert('색상을 선택해주세요')
+              return
+            }
+            if (drawState) return
+            [x, y] = [pageX - left, pageY - top]
+            drawStart(x, y)
+          break
+          case 'mousemove' :
+            if (!drawState) return
+            [x, y] = [pageX - left, pageY - top]
+            drawing(x, y)
+          break
+          case 'mouseup' :
+          case 'mouseleave' :
+            if (drawState) drawEnd()
+          break
+        }
+      }
+
+      $(document)
+        .on('change', '#colors', selectColor)
+        .on('click', '#type img', selectType)
+        .on('mousedown', '#svgCanvas', draw)
+        .on('mouseup mouseleave mousemove', '#svgCanvasTop', draw)
     }
     app()
   </script>

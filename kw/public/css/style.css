@@ -198,3 +198,13 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .banner a{display:block;}
 .banner img{transition:.3s;}
 .banner img:hover{transform:scale(1.1)}
+
+/* 사이트관리 */
+.admin{width:1200px;margin:0 auto;}
+.admin__canvas{position:relative;height:600px;margin-top:15px;}
+.cols{position:absolute;top:-15px;font-size:6px;}
+.cols>span{display:inline-block;width:15px;text-align:center;letter-spacing:-1px;}
+.rows{position:absolute;left:-15px;top:0;font-size:6px;width:15px;}
+.rows>span{display:block;text-align:center;line-height:15px;}
+#svgCanvasTop{display:none;position:absolute;left:0;right:0;top:0;bottom:0;}
+#svgCanvasTop.active{display:block;}
