@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>부산국제모터쇼 | 사이트관리</title>
+  <link rel="stylesheet" type="text/css" href="./fontawesome-free-5.1.0-web/css/all.css">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <script type="text/javascript" src="./js/jquery-latset.min.js"></script>
+  <script type="text/javascript" src="./js/common.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h3 class="logo"><a href="./">부산국제모터쇼</a></h3>
+      <nav class="gnb">
+        <ul>
+          <li>
+            <a href="#">부산국제모터쇼</a>
+            <ul>
+              <li><a href="#">행사소개</a></li>
+              <li><a href="#">모터쇼 연혁</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#">로그인</a>
+          </li>
+          <li>
+            <a href="#">회원가입</a>
+          </li>
+          <li>
+            <a href="#">예매하기</a>
+          </li>
+          <li>
+            <a href="#">관람안내</a>
+            <ul>
+              <li><a href="#">참가업체부스배치도</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="./site-admin.html">관리자</a>
+            <ul>
+              <li><a href="./site-admin.html">사이트관리자</a></li>
+              <li><a href="#">참가업체 부스신청</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <ul class="sns">
+        <li><a href="#"><img src="./image/sns01.png" alt="sns01"></a></li>
+        <li><a href="#"><img src="./image/sns02.png" alt="sns02"></a></li>
+        <li><a href="#"><img src="./image/sns03.png" alt="sns03"></a></li>
+        <li><a href="#"><img src="./image/sns04.png" alt="sns04"></a></li>
+      </ul>
+    </div>
+  </header>
+  <div class="site-visual sub">
+    <ul>
+      <li>
+        <span class="middle"></span><div class="slogan">
+          <strong>혁신을 넘다, 미래를 보다.</strong>
+          <p>Beyond Innovation, Into the Future</p>
+        </div>
+      </li>
+      <li>
+        <span class="middle"></span><div class="slogan">
+          <strong>미래의 물결, 감동의 기술</strong>
+          <p>Future wave, Inspiring technology</p>
+        </div>
+      </li>
+      <li>
+        <span class="middle"></span><div class="slogan">
+          <strong>자동차의 바다, 세계를 품다</strong>
+          <p>Ocean of vehicles, leading the world</p>
+        </div>
+      </li>
+      <li>
+        <span class="middle"></span><div class="slogan">
+          <strong>바다를 품은 녹색자동차의 항해</strong>
+          <p>The voyage of the green car across the ocean</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <main class="site-content sub-content admin container">
+    <h1 class="content__title">사이트관리자</h2>
+    <section class="saved">
+      <h2 class="legend">Save</h2>
+      <div id="saved"></div>
+    </section>
+    <section class="layout">
+      <h2 class="legend">Layout</h2>
+      <div id="layout"></div>
+    </section>
+    <section class="type">
+      <h2 class="legend">Type</h2>
+      <div id="type"></div>
+    </section>
+  </main>
+  <script>
+    // util functions
+    const create = ele => document.createElement(ele)
+    const createNS = ele => document.createElementNS('http://www.w3.org/2000/svg', ele)
+    const setAttr = (target, attr) => {
+      for (const key in attr) { target.setAttribute(key, attr[key]) }
+      return target
+    }
+
+    // variables
+    const cols = [...(new Array(80)).keys()]
+    const rows = [...(new Array(40)).keys()]
+    const width = 800, height = 400
+
+    // app functions
+    const initSvg = (type = []) => {
+      const svg = setAttr(createNS('svg'), {
+        xmlns: 'http://www.w3.org/2000/svg', width, height
+      })
+      const lineAttr = {stroke: '#ddd', strokeWidth: '1'}
+      const rectAttr = {width: 10, height: 10, fill: '#000000'}
+      svg.innerHTML = `
+        ${[...cols, 80].map(v => setAttr(createNS('line'), { x1: v*10, y1: 0, x2: v*10, y2: height, ...lineAttr }).outerHTML).join('')}
+        ${[...rows, 40].map(v => setAttr(createNS('line'), { x1: 0, y1: v*10, x2: width, y2: v*10, ...lineAttr }).outerHTML).join('')}
+        ${type.length ? type.map(([x, y]) => setAttr(createNS('rect'), { ...rectAttr, x: ((x-1)*10), y: ((y-1)*10)}).outerHTML).join('') : ''}
+      `
+      return svg
+    }
+    const app = async () => {
+      const saved = $('#saved'), layout = $('#layout'), type = $('#type')
+      const road0 = initSvg()
+      const {road1, road2, road3, ...json} = await fetch('./data/plan.json').then(res => res.json())
+      const colors = Object.entries(json.color)
+      layout.html(`
+        ${road0.outerHTML}
+        <div class="cols">${cols.map(v => `<span>${v+1}</span>`)}</div>
+        <div class="rows">${rows.map(v => `<span>${v+1}</span>`)}</div>
+        <div>
+        
+        </div>
+      `)
+      const types = [road0, road1, road2, road3].map(v => initSvg(v))
+      const typesImage = types.map(v => {
+        const blob = new Blob([v.outerHTML], {type: 'image/svg+xml'})
+        const src = URL.createObjectURL(blob)
+        return setAttr(create('img'), { src, width: '250' })
+      })
+      type.html(typesImage.map(v => v.outerHTML).join(' '))
+    }
+    app()
+  </script>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer__map"><img src="./image/map.jpg" alt="map"></div>
+      <div class="footer__info">
+        <div class="footer__logo">
+          <span>부산국제모터쇼</span>
+        </div>
+        <p>부산광역시 해운대구 APEC로 55, BEXCO (우48060)</p>
+        <p>
+          <span>TEL : (051)740-3520, 3516</span>
+          <span>FAX : (051)740-3404</span>
+          <span>E-mail : bimos@bexco.co.kr</span>
+        </p>
+        <p class="footer__copyright">Copyright(c) Busan International Motor Show. All Rights Reserved.</p>
+        <p class="footer__sns">
+          <a href="#"><img src="./image/sns01.png" alt="sns01"></a>
+          <a href="#"><img src="./image/sns02.png" alt="sns02"></a>
+          <a href="#"><img src="./image/sns03.png" alt="sns03"></a>
+          <a href="#"><img src="./image/sns04.png" alt="sns04"></a> 
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
