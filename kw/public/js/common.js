@@ -2,22 +2,26 @@
 const cols = [...(new Array(80)).keys()]
 const rows = [...(new Array(40)).keys()]
 const width = 1200, height = 600, unit = 15
+const xmlns = 'http://www.w3.org/2000/svg'
 
 // util functions
 const create = ele => document.createElement(ele)
-const createNS = ele => document.createElementNS('http://www.w3.org/2000/svg', ele)
+const createNS = ele => document.createElementNS(xmlns, ele)
 const setAttr = (target, attr) => {
   for (const key in attr) { target.setAttribute(key, attr[key]) }
   return target
 }
 const getAttr = (target, ...attr) => attr.map(k => target.attributes[k].value*1)
 const convert = n => ~~(n/unit)*unit
+const svgToImg = svgText => {
+  const blob = new Blob([svgText], {type: 'image/svg+xml'})
+  const src = URL.createObjectURL(blob)
+  return setAttr(create('img'), { src, width: 295 })
+}
 
 // app functions
 const initSvg = (type = []) => {
-  const svg = setAttr(createNS('svg'), {
-    xmlns: 'http://www.w3.org/2000/svg', width, height
-  })
+  const svg = setAttr(createNS('svg'), { xmlns, width, height })
   const lineAttr = {stroke: '#ddd', 'stroke-width': '1'}
   const rectAttr = {width: unit, height: unit, fill: '#000000'}
   svg.innerHTML = `
@@ -29,20 +33,13 @@ const initSvg = (type = []) => {
 }
 
 const app = async () => {
-  const saved = $('#saved'),
-        layout = $('#layout'),
-        type = $('#type')
+  const [saved, layout, type] = '#saved,#layout,#type'.split(',').map(v => $(v))
   const {road1, road2, road3, color} = await fetch('./data/plan.json').then(res => res.json())
   const boothList = Object.entries(color).map(([name, color]) => ({ name, color, el: null, area: 0 }))
   const filled = boothList.map(() => [])
   const types = [[], road1, road2, road3].map(arr => ({arr, svg: initSvg(arr)}))
-  const typesImage = types.map(({ svg }) => {
-    const blob = new Blob([svg.outerHTML], {type: 'image/svg+xml'})
-    const src = URL.createObjectURL(blob)
-    return setAttr(create('img'), { src, width: 295 })
-  })
   let typeIdx = 1
-  type.html(typesImage.map(v => v.outerHTML).join(' '))
+  type.html(types.map(({ svg }) => svgToImg(svg.outerHTML).outerHTML).join(' '))
   layout.html(`
     <div class="admin__canvas">
       <div id="top1" class="svgCanvasTop"></div>
@@ -57,10 +54,11 @@ const app = async () => {
       </select>
       <span class="area"><span id="area">0</span> ㎡</span>
       <a href="#" id="saveSite" class="btn btn__main">저장</a>
-      <a href="#" id="deleteSite" class="btn btn__default">삭제</a>
+      <a href="#" id="clearSite" class="btn btn__default">삭제</a>
     </div>
   `)
   const [svgCanvas, top1, top2, area] = '#svgCanvas,#top1,#top2,#area'.split(',').map(v => $(v))
+  const savedList = []
 
   let rect, temp, attr1, attr2, initX, initY, [drawState, booth] = [0, 0]
   const selectBooth = e => booth = e.currentTarget.value*1
@@ -108,6 +106,7 @@ const app = async () => {
     svgCanvas.append(setAttr(temp, {fill: current.color}))
     current.el = (current.el && current.el.remove(), temp)
     current.area = w * h
+    setAttr(current.el, { 'data-area': current.area })
     area.html(current.area)
   }
   const draw = e => {
@@ -124,7 +123,6 @@ const app = async () => {
       break
     }
   }
-
   const move = (() => {
     let selected, moveState, beforeX, beforeY, originX, originY, w, h
     return e => {
@@ -163,15 +161,13 @@ const app = async () => {
       }
     }
   })();
-
-  const boothFill = ([x, y, w, h]) => {
+  const boothFill = ([x, y, w, h], idx = booth) => {
     const arr = []
     for (let i = 1; i <= w; i++)
       for (let j = 1; j <= h; j++)
         arr.push([x + i, y + j])
-    filled[booth] = arr
+    filled[idx] = arr
   }
-
   const pointCheck = ([x, y, w, h]) => ([roadX, roadY]) => {
     for (let i = 1; i <= w; i++)
       for (let j = 1; j <= h; j++)
@@ -180,17 +176,54 @@ const app = async () => {
         }
     return false
   }
-
   const roadCheck = arr => {
     const chk = types[typeIdx].arr.findIndex(pointCheck(arr)) === -1
     if (!chk) alert('통행로와 겹칩니다.')
     return chk
   }
-
   const boothCheck = arr => {
     const chk = filled.filter((v, k) => k !== booth).findIndex((v, k) => v.findIndex(pointCheck(arr)) !== -1) === -1
     chk ? boothFill(arr) : alert('다른 부스와 겹칩니다.')
     return chk
+  }
+  const saveSite = () => {
+    const svg = setAttr(svgCanvas[0].cloneNode(true), { xmlns })
+    const img = svgToImg(svg.outerHTML)
+    savedList.push(svg)
+    saved.append(`
+      <div>
+        ${svgToImg(svg.outerHTML).outerHTML}
+        <a href="#" class="deleteSite"><i class="fas fa-times"></i></a>
+      </div>
+    `)
+    return false
+  }
+  const selectSaved = e => {
+    const idx = $(e.currentTarget).index()
+    svgCanvas.html(savedList[idx].innerHTML)
+    filled.forEach((v, k) => filled[k] = [])
+    $('#svgCanvas rect[class="draw"]').each((k, rect) => {
+      const {booth, area} = rect.dataset
+      boothList[booth].el = rect
+      boothList[booth].area = area
+      boothFill(getAttr(rect, 'x','y','width','height').map(v => v/15), booth)
+    })
+    return false
+  }
+  const clearSite = () => {
+    boothList.forEach(v => {
+      if (v.area === 0) return
+      v.el.remove()
+      v.area = 0
+    })
+    return false
+  }
+  const deleteSite = e => {
+    const parent = $(e.currentTarget).parent()
+    const idx = parent.index()
+    parent.remove()
+    savedList.splice(idx, 1)
+    return false
   }
 
   $(document)
@@ -200,6 +233,10 @@ const app = async () => {
     .on('mouseup mousemove click', '#top1', draw)
     .on('mousedown', '#svgCanvas rect[class="draw"]', move)
     .on('mouseup mouseleave mousemove', '#top2', move)
+    .on('click', '#saveSite', saveSite)
+    .on('click', '#saved img', selectSaved)
+    .on('click', '#clearSite', clearSite)
+    .on('click', '.deleteSite', deleteSite)
 }
 
 app()
