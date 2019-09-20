@@ -213,16 +213,16 @@ const app = async () => {
   const clearSite = () => {
     boothList.forEach(v => {
       if (v.area === 0) return
-      v.el.remove()
+      v.el = v.el.remove()
       v.area = 0
     })
     return false
   }
   const deleteSite = e => {
     const parent = $(e.currentTarget).parent()
-    const idx = parent.index()
+    savedList.splice(parent.index(), 1)
     parent.remove()
-    savedList.splice(idx, 1)
+    if (savedList.length === 0) saved.html('')
     return false
   }
 
@@ -234,7 +234,7 @@ const app = async () => {
     .on('mousedown', '#svgCanvas rect[class="draw"]', move)
     .on('mouseup mouseleave mousemove', '#top2', move)
     .on('click', '#saveSite', saveSite)
-    .on('click', '#saved img', selectSaved)
+    .on('click', '#saved>div', selectSaved)
     .on('click', '#clearSite', clearSite)
     .on('click', '.deleteSite', deleteSite)
 }
