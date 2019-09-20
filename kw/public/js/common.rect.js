@@ -103,11 +103,16 @@ const app = async () => {
     rect = rect.remove()
     top1.removeClass('active')
     if (!bool) { temp = temp.remove(); return }
+    // const div = rectToDiv([x, y, w, h, current.color, current.name])
     svgCanvas.append(setAttr(temp, {fill: current.color}))
     current.el = (current.el && current.el.remove(), temp)
     current.area = w * h
-    setAttr(current.el, { 'data-area': current.area })
+    setAttr(current.el, { 'data-area': current.area, 'data-name': current.name })
     area.html(current.area)
+  }
+  const rectToDiv = ([x, y, w, h, fill, name]) => {
+    const div = `<div class="draw" x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"></div>`
+    return $(div)[0]
   }
   const draw = e => {
     const {top, left} = $(e.currentTarget).offset()
