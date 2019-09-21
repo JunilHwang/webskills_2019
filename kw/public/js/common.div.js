@@ -14,20 +14,15 @@ const setAttr = (target, attr) => {
 const getStyle = (target, ...attr) => attr.map(k => parseInt(target.style[k]))
 const convert = n => ~~(n/unit)*unit
 const svgToImg = svgText => {
-  const svgHTML = svgText.replace(/foreignobject/gi, 'foreignObject').replace('class="dot"', 'class="dot img"')
+  const svgHTML = svgText.replace(/foreignobject/g, 'foreignObject').replace(/1px/g, '2px')
   const blob = new Blob([svgHTML], {type: 'image/svg+xml'})
   const src = URL.createObjectURL(blob)
   return setAttr(create('img'), { src, width: 295 })
 }
 
 // app functions
-const initRoad = (type = []) => {
-  const rectAttr = {xmlns, class: 'default'}
-  const dotAttr = {xmlns, class: 'dot'}
-  return `
-    ${setAttr(create('div'), dotAttr).outerHTML}
-    ${type.map(([x, y]) => setAttr(create('div'), { ...rectAttr, style: `left:${(x-1)*unit}px;top:${(y-1)*unit}px` }).outerHTML).join('')}
-  `
+const initRoad = arr => {
+  return arr.map(([x, y]) => `<div xmlns="${xmlns}" style="left:${(x-1)*unit}px;top:${(y-1)*unit}px"></div>`).join('')
 }
 
 const app = async () => {
@@ -35,7 +30,7 @@ const app = async () => {
   const {road1, road2, road3, color} = await fetch('./data/plan.json').then(res => res.json())
   const boothList = Object.entries(color).map(([name, color]) => ({ name, color, el: null, area: 0 }))
   const filled = boothList.map(() => [])
-  const types = [[], road1, road2, road3].map(arr => ({arr, html: initRoad(arr)}))
+  const types = [[], road1, road2, road3].map((arr, k) => ({arr, html: initRoad(arr)}))
   const savedList = []
   let typeIdx = 0
 
@@ -45,27 +40,24 @@ const app = async () => {
       <div id="top2" class="svgCanvasTop"></div>
       <svg id="svgCanvas" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
         <style>
-          foreignObject div:not(.dot){position:absolute;}
-          .default{background:#000;width:${unit}px;height:${unit}px;}
-          .draw{background:#ffb;display:flex;justify-content:center;align-items:center;}
-          .draw.drawing{z-index:-1}
-          .draw::before{content:attr(data-name);color:#fff;}
-          .preview{border:1px solid #666;}
+          .default>div{position:absolute;background:#000;width:${unit}px;height:${unit}px;}
+          .draw>div{position:absolute;display:flex;justify-content:center;align-items:center;color:#fff;}
+          .draw>div.drawing{background:#ffb;z-index:-1}
+          .draw>div.active{box-shadow:0 0 10px #666}
+          .preview{position:absolute;border:1px solid #666;}
           .dot{height:100%;
             background-image: linear-gradient(#ddd 1px, transparent 1px),
                               linear-gradient(90deg, #ddd 1px, transparent 1px);
             background-size: 100% ${unit}px, ${unit}px 100%;
             border-right:1px solid #ddd;border-bottom:1px solid #ddd;box-sizing:border-box;
           }
-          .dot.img{height:100%;
-            background-image: linear-gradient(#ddd 2px, transparent 2px),
-                              linear-gradient(90deg, #ddd 2px, transparent 2px);
-            background-size: 100% ${unit}px, ${unit}px 100%;
-            border-right:2px solid #ddd;border-bottom:2px solid #ddd;
-          }
         </style>
         <foreignObject id="#foreignObject" x="0" y="0" width="${width}" height="${height}">
-          ${types[typeIdx].html}
+          <div class="dot" xmlns="${xmlns}"></div>
+          <div class="default" xmlns="${xmlns}" data-idx="${typeIdx}">
+            ${types[typeIdx].html}
+          </div>
+          <div class="draw" xmlns="${xmlns}"></div>
         </foreignObject>        
       </svg>
       <div class="cols">${cols.map(v => `<span>${v+1}</span>`).join('')}</div>
@@ -83,28 +75,33 @@ const app = async () => {
   const [svgCanvas, top1, top2, area] = '#svgCanvas,#top1,#top2,#area'.split(',').map(v => $(v))
   const clone = svgCanvas.clone()
   type.html(
-    types.map(({ html }) => (
-      clone.find('foreignObject').html(html), svgToImg(clone[0].outerHTML).outerHTML)
+    types.map(({ html }, idx) => (
+      clone.find('.default').attr('data-idx', idx).html(html), svgToImg(clone[0].outerHTML).outerHTML)
     ).join(' ')
   )
 
-  let rect, temp, attr1, attr2, initX, initY, [drawState, booth] = [0, 0]
-  const selectBooth = e => booth = e.currentTarget.value*1
+  let rect, temp, initX, initY, [drawState, booth] = [0, 0]
+  const selectBooth = e => {
+    booth = e.currentTarget.value*1
+    area.html(boothList[booth].area)
+  }
   const selectType  = e => {
     typeIdx = $(e.currentTarget).index()
-    svgCanvas.find('foreignObject').html(types[typeIdx].html)
+    svgCanvas.find('.draw').empty()
+    svgCanvas.find('.default').attr('data-idx', typeIdx).html(types[typeIdx].html)
     filled.forEach((v, k) => filled[k] = [])
     area.html(0)
+    saveData()
   }
   const drawStart = (x, y) => {
     initX = x, initY = y
     drawState = 1
     top1.addClass('active')
-    attr1 = { xmlns, style: `left:${x}px;top:${y}px`, class: 'preview' }
-    attr2 = { xmlns, style: `background:#ffa;left:${convert(x)}px;top:${convert(y)}px`, class: 'draw', 'data-booth': booth }
-    rect = setAttr(create('div'), attr1)
-    temp = setAttr(create('div'), attr2)
-    svgCanvas.find('foreignObject').prepend(temp).append(rect)
+    const rectAttr = { xmlns, style: `left:${x}px;top:${y}px`, class: 'preview' }
+    const tempAttr = { xmlns, style: `left:${convert(x)}px;top:${convert(y)}px`, class: 'drawing', 'data-booth': booth }
+    rect = setAttr(create('div'), rectAttr)
+    temp = setAttr(create('div'), tempAttr)
+    svgCanvas.find('.draw').prepend(temp).append(rect)
   }
   const drawing = (x, y) => {
     drawState = 2
@@ -134,12 +131,13 @@ const app = async () => {
     rect = rect.remove()
     top1.removeClass('active')
     if (!bool) { temp = temp.remove(); return }
-    temp.style.background = color
-    svgCanvas.find('foreignObject').append(temp)
+    $(temp).removeClass('drawing').css('background', color).html(name)
+    svgCanvas.find('.draw').append(temp)
     current.el = (current.el && current.el.remove(), temp)
     current.area = w * h
-    setAttr(current.el, { 'data-area': current.area, 'data-name': name })
+    setAttr(current.el, { 'data-area': current.area })
     area.html(current.area)
+    saveData()
   }
   const draw = e => {
     const {top, left} = $(e.currentTarget).offset()
@@ -165,7 +163,9 @@ const app = async () => {
           e.stopPropagation();
           [beforeX, beforeY, selected, moveState] = [x, y, e.currentTarget, true];
           [originX, originY, w, h] = getStyle(selected, 'left', 'top', 'width', 'height');
+          boothList[booth].el.classList.remove('active')
           booth = selected.dataset.booth*1
+          boothList[booth].el.classList.add('active')
           $('#boothList').val(booth)
           area.html(boothList[booth].area)
           top2.addClass('active')
@@ -185,10 +185,11 @@ const app = async () => {
           const args = getStyle(selected,'left','top','width','height').map(v => v/unit)
           if (!roadCheck(args) || !boothCheck(args)) {
             selected.style.left = originX + 'px'
-            selected.style.top = originY + 'px'
+            selected.style.top  = originY + 'px'
           }
           moveState = false
           top2.removeClass('active')
+          saveData()
         break;
       }
     }
@@ -219,25 +220,36 @@ const app = async () => {
   }
   const saveSite = () => {
     const img = svgToImg(svgCanvas[0].outerHTML)
-    savedList.push(svgCanvas.find('foreignObject').html())
+    savedList.push({
+      type: typeIdx,
+      html: svgCanvas.find('.draw').html()
+    })
     saved.append(`
       <div>
         ${img.outerHTML}
         <a href="#" class="deleteSite"><i class="fas fa-times"></i></a>
       </div>
     `)
+    saveData()
     return false
+  }
+  const syncFilled = () => {
+    svgCanvas.find('.draw>div').each((k, v) => {
+      const {booth, area} = v.dataset
+      boothList[booth].el = v
+      boothList[booth].area = area
+      boothFill(getStyle(v, 'left','top','width','height').map(n => n/unit), booth)
+    })
+    area.html(boothList[booth].area)
   }
   const selectSaved = e => {
     const idx = $(e.currentTarget).index()
-    svgCanvas.find('foreignObject').html(savedList[idx])
+    const v = savedList[idx]
+    type.find('>img').eq(v.type).click()
+    svgCanvas.find('.draw').html(v.html)
     filled.forEach((v, k) => filled[k] = [])
-    $('#svgCanvas .draw').each((k, rect) => {
-      const {booth, area} = rect.dataset
-      boothList[booth].el = rect
-      boothList[booth].area = area
-      boothFill(getStyle(rect, 'left','top','width','height').map(v => v/unit), booth)
-    })
+    syncFilled()
+    saveData()
     return false
   }
   const clearSite = () => {
@@ -246,6 +258,7 @@ const app = async () => {
       v.el = v.el.remove()
       v.area = 0
     })
+    saveData()
     return false
   }
   const deleteSite = e => {
@@ -253,15 +266,38 @@ const app = async () => {
     savedList.splice(parent.index(), 1)
     parent.remove()
     if (savedList.length === 0) saved.html('')
+    saveData()
     return false
   }
+  const saveData = () => {
+    localStorage.setItem('inner', svgCanvas.find('foreignObject').html())
+    localStorage.setItem('savedList', JSON.stringify(savedList))
+  };
+  (() => {
+    // loadData
+    const inner = localStorage.getItem('inner')
+    JSON.parse(localStorage.getItem('savedList') || '[]').forEach(v => savedList.push(v))
+    saved.html(savedList.map(v => (
+      svgCanvas.find('.default').attr('data-idx', v.type).html(types[v.type].html),
+      svgCanvas.find('.draw').html(v.html),
+      `<div>
+          ${svgToImg(svgCanvas[0].outerHTML).outerHTML}
+          <a href="#" class="deleteSite"><i class="fas fa-times"></i></a>
+       </div>`
+    )).join(''))
+    if (inner !== null) {
+      svgCanvas.find('foreignObject').html(inner)
+      typeIdx = svgCanvas.find('.default').data('idx') * 1
+      syncFilled()
+    }
+  })();
 
   $(document)
     .on('change', '#boothList', selectBooth)
     .on('click', '#type img', selectType)
     .on('mousedown', '#svgCanvas', draw)
     .on('mouseup mousemove click', '#top1', draw)
-    .on('mousedown', '#svgCanvas .draw', move)
+    .on('mousedown', '#svgCanvas .draw>div', move)
     .on('mouseup mouseleave mousemove', '#top2', move)
     .on('click', '#saveSite', saveSite)
     .on('click', '#saved>div', selectSaved)
