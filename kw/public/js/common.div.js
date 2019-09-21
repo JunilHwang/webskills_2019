@@ -2,7 +2,7 @@
 const cols = [...(new Array(80)).keys()]
 const rows = [...(new Array(40)).keys()]
 const width = 1200, height = 600, unit = 15
-const xmlns = 'http://www.w3.org/2000/svg'
+const xmlns = 'http://www.w3.org/1999/xhtml'
 
 // util functions
 const create = ele => document.createElement(ele)
@@ -14,31 +14,20 @@ const setAttr = (target, attr) => {
 const getStyle = (target, ...attr) => attr.map(k => parseInt(target.style[k]))
 const convert = n => ~~(n/unit)*unit
 const svgToImg = svgText => {
-  const blob = new Blob([svgText.replace(/foreignobject/gi, 'foreignObject')], {type: 'image/svg+xml'})
+  const svgHTML = svgText.replace(/foreignobject/gi, 'foreignObject').replace('class="dot"', 'class="dot img"')
+  const blob = new Blob([svgHTML], {type: 'image/svg+xml'})
   const src = URL.createObjectURL(blob)
   return setAttr(create('img'), { src, width: 295 })
 }
 
 // app functions
-const initSvg = (type = []) => {
-  const svg = setAttr(createNS('svg'), { xmlns, width, height })
-  const lineAttr = {stroke: '#ddd', 'stroke-width': '1'}
-  const rectAttr = {xmlns: 'http://www.w3.org/1999/xhtml', class: 'default'}
-  svg.innerHTML = `
-    <style>
-      foreignObject div{position:absolute;}
-      .default{background:#000;width:${unit}px;height:${unit}px;}
-      .draw{z-index:10;background:#ffb;display:flex;justify-content:center;align-items:center;}
-      .draw::before{content:attr(data-name);color:#fff;}
-      .preview{z-index:20;border:1px solid #666;}
-    </style>
-    ${[...cols, 80].map(v => setAttr(createNS('line'), { x1: v*unit, y1: 0, x2: v*unit, y2: height, ...lineAttr }).outerHTML).join('')}
-    ${[...rows, 40].map(v => setAttr(createNS('line'), { x1: 0, y1: v*unit, x2: width, y2: v*unit, ...lineAttr }).outerHTML).join('')}
-    <foreignObject x="0" y="0" width="${width}" height="${height}">
-      ${type.map(([x, y]) => setAttr(create('div'), { ...rectAttr, style: `left:${(x-1)*unit}px;top:${(y-1)*unit}px` }).outerHTML).join('')}
-    </foreignObject>
+const initRoad = (type = []) => {
+  const rectAttr = {xmlns, class: 'default'}
+  const dotAttr = {xmlns, class: 'dot'}
+  return `
+    ${setAttr(create('div'), dotAttr).outerHTML}
+    ${type.map(([x, y]) => setAttr(create('div'), { ...rectAttr, style: `left:${(x-1)*unit}px;top:${(y-1)*unit}px` }).outerHTML).join('')}
   `
-  return svg
 }
 
 const app = async () => {
@@ -46,16 +35,39 @@ const app = async () => {
   const {road1, road2, road3, color} = await fetch('./data/plan.json').then(res => res.json())
   const boothList = Object.entries(color).map(([name, color]) => ({ name, color, el: null, area: 0 }))
   const filled = boothList.map(() => [])
-  const types = [[], road1, road2, road3].map(arr => ({arr, svg: initSvg(arr)}))
+  const types = [[], road1, road2, road3].map(arr => ({arr, html: initRoad(arr)}))
+  const savedList = []
   let typeIdx = 0
-
-  type.html(types.map(({ svg }) => svgToImg(svg.outerHTML).outerHTML).join(' '))
 
   layout.html(`
     <div class="admin__canvas">
       <div id="top1" class="svgCanvasTop"></div>
       <div id="top2" class="svgCanvasTop"></div>
-      <svg id="svgCanvas" width="${width}" height="${height}">${types[typeIdx].svg.innerHTML}</svg>
+      <svg id="svgCanvas" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          foreignObject div:not(.dot){position:absolute;}
+          .default{background:#000;width:${unit}px;height:${unit}px;}
+          .draw{background:#ffb;display:flex;justify-content:center;align-items:center;}
+          .draw.drawing{z-index:-1}
+          .draw::before{content:attr(data-name);color:#fff;}
+          .preview{border:1px solid #666;}
+          .dot{height:100%;
+            background-image: linear-gradient(#ddd 1px, transparent 1px),
+                              linear-gradient(90deg, #ddd 1px, transparent 1px);
+            background-size: 100% ${unit}px, ${unit}px 100%;
+            border-right:1px solid #ddd;border-bottom:1px solid #ddd;box-sizing:border-box;
+          }
+          .dot.img{height:100%;
+            background-image: linear-gradient(#ddd 2px, transparent 2px),
+                              linear-gradient(90deg, #ddd 2px, transparent 2px);
+            background-size: 100% ${unit}px, ${unit}px 100%;
+            border-right:2px solid #ddd;border-bottom:2px solid #ddd;
+          }
+        </style>
+        <foreignObject id="#foreignObject" x="0" y="0" width="${width}" height="${height}">
+          ${types[typeIdx].html}
+        </foreignObject>        
+      </svg>
       <div class="cols">${cols.map(v => `<span>${v+1}</span>`).join('')}</div>
       <div class="rows">${rows.map(v => `<span>${v+1}</span>`).join('')}</div>
     </div>
@@ -69,13 +81,18 @@ const app = async () => {
     </div>
   `)
   const [svgCanvas, top1, top2, area] = '#svgCanvas,#top1,#top2,#area'.split(',').map(v => $(v))
-  const savedList = []
+  const clone = svgCanvas.clone()
+  type.html(
+    types.map(({ html }) => (
+      clone.find('foreignObject').html(html), svgToImg(clone[0].outerHTML).outerHTML)
+    ).join(' ')
+  )
 
   let rect, temp, attr1, attr2, initX, initY, [drawState, booth] = [0, 0]
   const selectBooth = e => booth = e.currentTarget.value*1
   const selectType  = e => {
     typeIdx = $(e.currentTarget).index()
-    svgCanvas.find('foreignObject').html($(types[typeIdx].svg).find('foreignObject').html())
+    svgCanvas.find('foreignObject').html(types[typeIdx].html)
     filled.forEach((v, k) => filled[k] = [])
     area.html(0)
   }
@@ -83,7 +100,6 @@ const app = async () => {
     initX = x, initY = y
     drawState = 1
     top1.addClass('active')
-    const xmlns = 'http://www.w3.org/1999/xhtml'
     attr1 = { xmlns, style: `left:${x}px;top:${y}px`, class: 'preview' }
     attr2 = { xmlns, style: `background:#ffa;left:${convert(x)}px;top:${convert(y)}px`, class: 'draw', 'data-booth': booth }
     rect = setAttr(create('div'), attr1)
@@ -202,8 +218,7 @@ const app = async () => {
     return chk
   }
   const saveSite = () => {
-    const svg = setAttr(svgCanvas[0].cloneNode(true), { xmlns })
-    const img = svgToImg(svg.outerHTML)
+    const img = svgToImg(svgCanvas[0].outerHTML)
     savedList.push(svgCanvas.find('foreignObject').html())
     saved.append(`
       <div>
