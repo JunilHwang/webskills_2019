@@ -21,9 +21,9 @@ const svgToImg = svgText => {
 }
 
 // app functions
-const initRoad = arr => {
-  return arr.map(([x, y]) => `<div xmlns="${xmlns}" style="left:${(x-1)*unit}px;top:${(y-1)*unit}px"></div>`).join('')
-}
+const initRoad = arr => arr.map(([x, y]) => `
+  <div xmlns="${xmlns}" style="left:${(x-1)*unit}px;top:${(y-1)*unit}px"></div>
+`).join('')
 
 const app = async () => {
   const [saved, layout, type] = '#saved,#layout,#type'.split(',').map(v => $(v))
@@ -76,8 +76,9 @@ const app = async () => {
   const clone = svgCanvas.clone()
   type.html(
     types.map(({ html }, idx) => (
-      clone.find('.default').attr('data-idx', idx).html(html), svgToImg(clone[0].outerHTML).outerHTML)
-    ).join(' ')
+      clone.find('.default').attr('data-idx', idx).html(html),
+      svgToImg(clone[0].outerHTML).outerHTML)
+    ).join('')
   )
 
   let rect, temp, initX, initY, [drawState, booth] = [0, 0]
@@ -163,9 +164,9 @@ const app = async () => {
           e.stopPropagation();
           [beforeX, beforeY, selected, moveState] = [x, y, e.currentTarget, true];
           [originX, originY, w, h] = getStyle(selected, 'left', 'top', 'width', 'height');
-          boothList[booth].el.classList.remove('active')
+          $('.draw .active').removeClass('active')
           booth = selected.dataset.booth*1
-          boothList[booth].el.classList.add('active')
+          $(boothList[booth].el).addClass('active')
           $('#boothList').val(booth)
           area.html(boothList[booth].area)
           top2.addClass('active')
@@ -174,8 +175,7 @@ const app = async () => {
           if (!moveState) return
           const [moveX, moveY] = [originX + convert(x - beforeX), originY + convert(y - beforeY)]
           const xChk = (w + moveX <= width) && (moveX >= 0),
-                yChk = (h + moveY <= height) && (moveY >= 0),
-                attr = {}
+                yChk = (h + moveY <= height) && (moveY >= 0)
           if (xChk) selected.style.left = moveX + 'px'
           if (yChk) selected.style.top  = moveY + 'px'
         break;
@@ -198,7 +198,7 @@ const app = async () => {
     const arr = []
     for (let i = 1; i <= w; i++)
       for (let j = 1; j <= h; j++)
-        arr.push([x + i, y + j])
+        arr.push([x+i, y+j])
     filled[idx] = arr
   }
   const pointCheck = ([x, y, w, h]) => ([roadX, roadY]) => {
@@ -288,6 +288,9 @@ const app = async () => {
     if (inner !== null) {
       svgCanvas.find('foreignObject').html(inner)
       typeIdx = svgCanvas.find('.default').data('idx') * 1
+      booth = svgCanvas.find('.draw .active').data('booth') * 1
+      $('#boothList').val(booth)
+      area.html(boothList[booth].area)
       syncFilled()
     }
   })();
