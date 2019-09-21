@@ -258,6 +258,7 @@ const app = async () => {
       v.el = v.el.remove()
       v.area = 0
     })
+    area.html(0)
     saveData()
     return false
   }
@@ -270,12 +271,14 @@ const app = async () => {
     return false
   }
   const saveData = () => {
-    localStorage.setItem('inner', svgCanvas.find('foreignObject').html())
+    localStorage.setItem('drawed', svgCanvas.find('.draw').html())
+    localStorage.setItem('typeIdx', typeIdx)
     localStorage.setItem('savedList', JSON.stringify(savedList))
   };
   (() => {
     // loadData
-    const inner = localStorage.getItem('inner')
+    const inner = localStorage.getItem('drawed')
+    typeIdx = (localStorage.getItem('typeIdx') || 0) * 1
     JSON.parse(localStorage.getItem('savedList') || '[]').forEach(v => savedList.push(v))
     saved.html(savedList.map(v => (
       svgCanvas.find('.default').attr('data-idx', v.type).html(types[v.type].html),
@@ -285,10 +288,10 @@ const app = async () => {
           <a href="#" class="deleteSite"><i class="fas fa-times"></i></a>
        </div>`
     )).join(''))
+    svgCanvas.find('.default').attr('data-idx', typeIdx).html(types[typeIdx].html)
     if (inner !== null) {
-      svgCanvas.find('foreignObject').html(inner)
-      typeIdx = svgCanvas.find('.default').data('idx') * 1
-      booth = svgCanvas.find('.draw .active').data('booth') * 1
+      svgCanvas.find('.draw').html(inner)
+      booth = svgCanvas.find('.draw .active').data('booth') * 1 || 0
       $('#boothList').val(booth)
       area.html(boothList[booth].area)
       syncFilled()
