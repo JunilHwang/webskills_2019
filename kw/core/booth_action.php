@@ -18,8 +18,13 @@ switch ($action) {
   case 'reserve_insert' :
     access(isset($rate), "행사일정을 선택해주세요");
     access($rate < 1, "예매가 불가능합니다. 정원이 초과되었습니다.");
-    $sql = "INSERT INTO event_reserve SET midx = '{$member->idx}', eidx = '{$idx}'";
+    $sql = "INSERT INTO event_reserve SET midx = '{$member->idx}', eidx = '{$idx}', reg_date = now();";
     $msg = '예매가 완료되었습니다.';
+    $url = HOME_URL.'/booth/reserve';
+  break;
+  case 'reserve_delete' :
+    $sql = "DELETE FROM event_reserve WHERE idx = '{$idx}'";
+    $msg = "예매가 취소되었습니다.";
     $url = HOME_URL.'/booth/reserve';
   break;
 }

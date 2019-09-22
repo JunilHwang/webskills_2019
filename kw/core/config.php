@@ -1,5 +1,6 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Seoul');
 $param = isset($_GET['param']) ? explode('/', $_GET['param']) : [];
 $page = $param[0] ?? 'main';
 $action = $param[1] ?? NULL;
@@ -32,7 +33,7 @@ switch ("{$page}_{$include_file}") {
     $img = imagecreatetruecolor(200, 200);
     imagecolortransparent($img, 0);
     $bg = imagecolorallocate($img, 0xdd, 0xdd, 0xdd);
-    $fill = imagecolorallocate($img, 0xd3, 0x05, 0x13);
+    $fill = imagecolorallocate($img, 0x33, 0x33, 0x33);
     imagefilledarc($img, 100, 100, 200, 200, 0, 360, $bg, IMG_ARC_PIE);
     if ($rate > 0) imagefilledarc($img, 100, 100, 200, 200, -90, (360 * $rate) - 90, $fill, IMG_ARC_PIE);
     header("Content-type: image/png");

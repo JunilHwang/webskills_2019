@@ -36,7 +36,7 @@
               <input type="hidden" name="rate" value="<?php echo $rate?>">
               <p><strong>참관가능인원</strong> <?php echo $max - $cnt?> 명</p>
               <p><strong>예매인원</strong> <?php echo $cnt?> 명</p>
-              <p><strong>예매율</strong> <?php echo round($rate, 2)?> %</p>
+              <p><strong>예매율</strong> <?php echo round($rate * 100, 2)?> %</p>
             </div>
           </div>
           <?php } else { ?>
@@ -50,13 +50,52 @@
     </fieldset>
   </form>
   <div class="table">
+    <form name="deleteFrm" action="" method="post">
+      <input type="hidden" name="action" value="reserve_delete">
+      <input type="hidden" name="idx" value="">
+    </form>
     <table>
       <colgroup>
-        <col>
+        <col width="10%" />
+        <col width="30%" />
+        <col width="30%" />
+        <col width="30%" />
       </colgroup>
       <thead>
-
+        <tr>
+          <th>번호</th>
+          <th>행사일정</th>
+          <th>예매일</th>
+          <th>예매취소</th>
+        </tr>
       </thead>
+      <tbody>
+        <?php
+          $rows = fetchAll("
+            SELECT er.*, e.start, e.end
+            FROM event_reserve er JOIN events e ON er.eidx = e.idx
+            order by e.start ASC
+          ");
+          foreach ($rows as $k=>$row) {
+        ?>
+        <tr>
+          <td><?php echo $k + 1?></td>
+          <td><?php echo "{$row->start} ~ {$row->end}"?></td>
+          <td><?php echo $row->reg_date?></td>
+          <td>
+            <?php
+              if ( strtotime(date("Y-m-d")) < strtotime($row->end) ) {
+            ?>
+            <a href="#" class="btn btn__main" onclick="deleteFrm.idx.value = '<?php echo $row->idx?>'; deleteFrm.submit();">예매취소</a>
+            <?php } else { ?>
+            -
+            <?php } ?>
+          </td>
+        </tr>
+        <?php
+          }
+        ?>
+      </tbody>
     </table>
   </div>
 </main>
