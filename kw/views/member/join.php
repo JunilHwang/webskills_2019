@@ -37,7 +37,7 @@
               <span>일반회원</span>
             </label>
             <label class="fields__custom-radio">
-              <input type="radio" name="type" value="default">
+              <input type="radio" name="type" value="company">
               <span>기업회원</span>
             </label>
           </div>

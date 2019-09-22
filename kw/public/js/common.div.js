@@ -130,6 +130,7 @@ const app = async () => {
     const bool = Math.min(w, h) > 1 && roadCheck([x, y, w, h]) && boothCheck([x, y, w, h])
     const current = boothList[booth]
     const { name, color } = current
+    $('.preview, .drawing').remove()
     rect = rect.remove()
     top1.removeClass('active')
     if (!bool) { temp = temp.remove(); return }
@@ -151,7 +152,7 @@ const app = async () => {
       case 'mouseup2' : drawEnd(); break
       case 'mouseup1' :
         drawState = 0;
-        $('.preview').remove()
+        $('.preview, .drawing').remove()
         top1.removeClass('active');
       break
     }

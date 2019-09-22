@@ -38,7 +38,7 @@
             <a href="<?php echo HOME_URL?>/booth/admin">관리자</a>
             <ul>
               <li><a href="<?php echo HOME_URL?>/booth/admin">사이트관리자</a></li>
-              <li><a href="<?php echo HOME_URL?>/booth/list">참가업체 부스신청</a></li>
+              <li><a href="<?php echo HOME_URL?>/booth/company">참가업체 부스신청</a></li>
             </ul>
           </li>
         </ul>

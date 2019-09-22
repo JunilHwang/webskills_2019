@@ -30,6 +30,14 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .btn__group.right{text-align:right;}
 .btn__left.right{text-align:left;}
 
+/* 테이블 */
+.table{background:#fafafa;padding:30px;border-radius:3px;border:1px solid #ddd;margin-top:30px;}
+.table table{width:100%;background:#fff;text-align:center;border-spacing:0;border-collapse:collapse}
+.table td,
+.table th{line-height:40px;}
+.table th{background:#555;color:#fff;}
+.table td{border-bottom:1px solid #bebebe;}
+
 /* 입력 영역 */
 .fields{background:#fafafa;border-radius:3px;border:1px solid #ddd;padding:30px;}
 .fields li+li{border-top:1px dotted #ddd;margin-top:15px;}
@@ -263,13 +271,16 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .form .fields{width:600px;margin:0 auto;}
 
 /* 예매하기 */
+.reserve .table{width:600px;margin:20px auto 0;}
 .rate-wrap{display:flex;align-items:center;}
 .rate-wrap>div{margin-left:20px;}
 .rate-wrap p{line-height:200%;}
 .rate-wrap strong{color:#d30513;display:inline-block;width:100px;}
-.table{width:600px;margin:0 auto;background:#fafafa;padding:30px;border-radius:3px;border:1px solid #ddd;margin-top:30px;}
-.table table{width:100%;background:#fff;text-align:center;border-spacing:0;border-collapse:collapse}
-.table td,
-.table th{line-height:40px;}
-.table th{background:#555;color:#fff;}
-.table td{border-bottom:1px solid #bebebe;}
+
+/* 부스배치도 */
+.booth #layout{margin-top:20px;}
+.booth .fields{width:900px;margin:0 auto;}
+.booth .table{width:900px;margin:30px auto 0;}
+option:disabled {
+  background: #ddd;
+}

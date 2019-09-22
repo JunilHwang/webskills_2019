@@ -27,6 +27,19 @@ switch ($action) {
     $msg = "예매가 취소되었습니다.";
     $url = HOME_URL.'/booth/reserve';
   break;
+  case 'connect_insert' :
+    $booth = explode(',', $booth);
+    $sql = "
+      INSERT INTO booth_connect SET
+      midx = '{$member->idx}',
+      eidx = '{$eidx}',
+      booth = '{$booth[0]}',
+      area = '{$booth[1]}',
+      reg_date = now();
+    ";
+    $msg = '등록되었습니다.';
+    $url = HOME_URL.'/booth/company/'.$eidx;
+  break;
 }
 query($sql, $execArr);
 alert($msg);
