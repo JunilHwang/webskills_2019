@@ -16,7 +16,7 @@
     <form action="" class="fields" method="post">
       <fieldset>
         <legend class="legend">부스등록정보 입력</legend>
-        <input type="hidden" name="action" value="reserve_insert">
+        <input type="hidden" name="action" value="events_insert">
         <input type="hidden" name="layout" value=''>
         <ul>
           <li>

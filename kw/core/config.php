@@ -27,4 +27,17 @@ switch ("{$page}_{$include_file}") {
     alert('로그아웃 되었습니다.');
     move(HOME_URL.'/');
   break;
+  case 'booth_rate' :
+    $rate = str_replace('_', '.', $idx);
+    $img = imagecreatetruecolor(200, 200);
+    imagecolortransparent($img, 0);
+    $bg = imagecolorallocate($img, 0xdd, 0xdd, 0xdd);
+    $fill = imagecolorallocate($img, 0xd3, 0x05, 0x13);
+    imagefilledarc($img, 100, 100, 200, 200, 0, 360, $bg, IMG_ARC_PIE);
+    if ($rate > 0) imagefilledarc($img, 100, 100, 200, 200, -90, (360 * $rate) - 90, $fill, IMG_ARC_PIE);
+    header("Content-type: image/png");
+    imagepng($img);
+    imagedestroy($img);
+    exit;
+  break;
 }

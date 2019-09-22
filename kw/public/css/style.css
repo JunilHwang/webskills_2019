@@ -261,3 +261,9 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 
 /* 로그인, 회원가입 */
 .form .fields{width:600px;margin:0 auto;}
+
+/* 예매하기 */
+.rate-wrap{display:flex;align-items:center;}
+.rate-wrap>div{margin-left:20px;}
+.rate-wrap p{line-height:200%;}
+.rate-wrap strong{color:#d30513;display:inline-block;width:100px;}
