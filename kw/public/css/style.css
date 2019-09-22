@@ -224,7 +224,39 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .admin__canvas+div .btn{font-size:16px;margin:0 2px;}
 
 /* 행사소개 */
-.summary__default li{display:flex;flex-flow:wrap;line-height:200%;}
-.summary__label{width:20%;font-size:21px;font-weight:bold;}
-.summary__description{width:80%;}
+.summary{width:900px;}
 .summary article{margin-top:50px;}
+.summary ul{border:1px solid #ddd;border-top:2px solid #d30513;padding:20px;line-height:30px;}
+.summary li{position:relative;padding-left:10px;}
+.summary li::before{content:"";display:block;position:absolute;left:0;top:13px;width:4px;height:4px;border-radius:4px;background:#d30513;margin-right:5px;}
+.summary__default li{display:flex;flex-flow:wrap;}
+.summary__default li+li{margin-top:10px;}
+.summary__label{width:15%;}
+.summary__description{width:85%;}
+
+/* 모터쇼 연혁 */
+.history__content{position:relative;padding-top:50px;}
+.history__content:before{content:"";position:absolute;width:10px;height:10px;border-radius:10px;background:#bebebe;color:#fff;border:none;display:inline-block;line-height:10px;text-align:center;left:calc(50% - 4px);top:0;}
+.history__content:after{content:"";position:absolute;top:0;left:50%;bottom:0;width:1px;background:#bebebe;display:block;}
+.history__content li{width:50%;padding-bottom:70px;position:relative;}
+.history__content li:before{content:"";position:absolute;width:11px;height:11px;border-radius:11px;background:#fff;color:#fff;border:6px solid #d30513;display:inline-block;line-height:11px;text-align:center;z-index:10;top:7px;}
+.history__content dt{font-size:35px;position:relative;padding-bottom:25px;font-weight:bold;color:#d30513;line-height:1;}
+.history__content dt:before{content:"";position:absolute;top:18px;background:#ddd;height:1px;width:50px;display:block;}
+.history__content dl{display:inline-block;max-width:500px;}
+.history__content dd{display:flex;}
+.history__content li:nth-child(2n+1){margin-left:calc(50% - 2px);}
+.history__content li:nth-child(2n+1):before{margin-left:-9px;}
+.history__content li:nth-child(2n+1) dl{padding-left:65px;}
+.history__content li:nth-child(2n+1) dt:before{left:-66px;}
+.history__content li:nth-child(2n){text-align:right;}
+.history__content li:nth-child(2n):before{right:-12px;}
+.history__content li:nth-child(2n) dl{padding-right:65px;text-align:left;}
+.history__content li:nth-child(2n) dt:before{left:100px;width:calc(100% - 35px);}
+.history__content li:nth-child(2n) dd{text-align:left;}
+.history__content-image{width:150px;}
+.history__content-info{width:calc(100% - 150px);}
+.history__content-info p{padding-left:15px;}
+.history__content-info p+p{margin-top:10px;}
+
+/* 로그인, 회원가입 */
+.form .fields{width:600px;margin:0 auto;}

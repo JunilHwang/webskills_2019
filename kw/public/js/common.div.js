@@ -27,7 +27,7 @@ const initRoad = arr => arr.map(([x, y]) => `
 
 const app = async () => {
   const [saved, layout, type] = '#saved,#layout,#type'.split(',').map(v => $(v))
-  const {road1, road2, road3, color} = await fetch('./data/plan.json').then(res => res.json())
+  const {road1, road2, road3, color} = await fetch('/public/data/plan.json').then(res => res.json())
   const boothList = Object.entries(color).map(([name, color]) => ({ name, color, el: null, area: 0 }))
   const filled = boothList.map(() => [])
   const types = [[], road1, road2, road3].map((arr, k) => ({arr, html: initRoad(arr)}))

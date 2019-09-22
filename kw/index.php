@@ -5,6 +5,7 @@
   define('CSS_URL', SRC_URL.'/css');
   define('JS_URL', SRC_URL.'/js');
   define('IMG_URL', SRC_URL.'/image');
+  define('DATA_URL', SRC_URL.'/data');
 
   include_once('./core/lib.php');
   include_once('./core/config.php');
