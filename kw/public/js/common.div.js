@@ -27,7 +27,8 @@ const initRoad = arr => arr.map(([x, y]) => `
 
 const app = async () => {
   const [saved, layout, type] = '#saved,#layout,#type'.split(',').map(v => $(v))
-  const {road1, road2, road3, color} = await fetch('/public/data/plan.json').then(res => res.json())
+  console.log(dataURL)
+  const {road1, road2, road3, color} = await fetch(dataURL+'/plan.json').then(res => res.json())
   const boothList = Object.entries(color).map(([name, color]) => ({ name, color, el: null, area: 0 }))
   const filled = boothList.map(() => [])
   const types = [[], road1, road2, road3].map((arr, k) => ({arr, html: initRoad(arr)}))
@@ -150,6 +151,7 @@ const app = async () => {
       case 'mouseup2' : drawEnd(); break
       case 'mouseup1' :
         drawState = 0;
+        $('.preview').remove()
         top1.removeClass('active');
       break
     }
@@ -236,6 +238,7 @@ const app = async () => {
   const syncFilled = () => {
     svgCanvas.find('.draw>div').each((k, v) => {
       const {booth, area} = v.dataset
+      if (booth === undefined) return
       boothList[booth].el = v
       boothList[booth].area = area
       boothFill(getStyle(v, 'left','top','width','height').map(n => n/unit), booth)

@@ -222,6 +222,7 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .admin__canvas+div select{font-size:21px;}
 .admin__canvas+div .area{font-size:21px;margin-right:20px;margin-left:10px;}
 .admin__canvas+div .btn{font-size:16px;margin:0 2px;}
+.admin__form{margin-top:50px;}
 
 /* 행사소개 */
 .summary{width:900px;}

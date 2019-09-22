@@ -18,7 +18,7 @@ switch ($action) {
       type = '{$type}'
     ");
     alert('회원가입이 완료되었습니다.');
-    move(HOME_URL."/member/login");
+    move(HOME_URL."/");
   break;
   case 'login' :
     $member = fetch("SELECT * FROM member WHERE id = '{$id}' and pw = '{$pw}'");
