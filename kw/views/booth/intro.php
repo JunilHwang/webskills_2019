@@ -32,33 +32,21 @@
       <thead>
         <tr>
           <th>번호</th>
-          <th>행사일정</th>
-          <th>예매일</th>
-          <th>예매취소</th>
+          <th>참가업체명</th>
+          <th>부스번호</th>
+          <th>전시품목</th>
         </tr>
       </thead>
       <tbody>
         <?php
-          $rows = fetchAll("
-            SELECT er.*, e.start, e.end
-            FROM event_reserve er JOIN events e ON er.eidx = e.idx
-            order by e.start ASC
-          ");
+          $rows = fetchAll("SELECT bc.booth, m.name FROM booth_connect bc JOIN member m ON bc.midx = m.idx WHERE bc.eidx = '{$idx}'");
           foreach ($rows as $k=>$row) {
         ?>
         <tr>
           <td><?php echo $k + 1?></td>
-          <td><?php echo "{$row->start} ~ {$row->end}"?></td>
-          <td><?php echo $row->reg_date?></td>
-          <td>
-            <?php
-              if ( strtotime(date("Y-m-d")) < strtotime($row->end) ) {
-            ?>
-            <a href="#" class="btn btn__main" onclick="deleteFrm.idx.value = '<?php echo $row->idx?>'; deleteFrm.submit();">예매취소</a>
-            <?php } else { ?>
-            -
-            <?php } ?>
-          </td>
+          <td><?php echo $row->name?></td>
+          <td><?php echo $row->booth?></td>
+          <td>-</td>
         </tr>
         <?php
           }
