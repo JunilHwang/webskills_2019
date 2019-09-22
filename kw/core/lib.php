@@ -29,7 +29,7 @@ function println ($el) {
 }
 
 function query ($sql, $arr = []) {
-  $db = new PDO("mysql:host=127.0.0.1;dbname=20190922;charset=utf8", "root", "");
+  $db = new PDO("mysql:host=127.0.0.1;dbname=20190922;charset=utf8", "webskills", "webskills");
   $res = count($arr) ? $db->prepare($sql)->execute($arr) : $db->query($sql);
   if (!$res) {
     println($sql);

@@ -8,7 +8,7 @@
         <li>
           <label>
             <span class="fields__list">아이디</span>
-            <input type="text" name="id" class="fields__input full" placeholder="아이디를 입력해주세요" required autofocus>
+            <input type="email" name="id" class="fields__input full" placeholder="아이디를 이메일 형식으로 입력해주세요" required autofocus>
           </label>
         </li>
         <li>
@@ -25,9 +25,22 @@
         </li>
         <li>
           <label>
-            <span class="fields__list">이름</span>
-            <input type="text" name="name" class="fields__input full" placeholder="이름을 입력해주세요" required>
+            <span class="fields__list">이름/업체명</span>
+            <input type="text" name="name" class="fields__input full" placeholder="이름 혹은 업체명을 입력해주세요" required>
           </label>
+        </li>
+        <li>
+          <span class="fields__list">회원구분</span>
+          <div>
+            <label class="fields__custom-radio">
+              <input type="radio" name="type" value="default" checked>
+              <span>일반회원</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="type" value="default">
+              <span>기업회원</span>
+            </label>
+          </div>
         </li>
         <li class="fields__buttons">
           <button class="btn btn__main full">가입하기</button>
