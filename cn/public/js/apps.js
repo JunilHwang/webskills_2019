@@ -41,7 +41,7 @@ const model = new class {
   }
 }
 
-const headerTpl = `
+const headerRender = ({logo, menu}) => `
   <header>
     <div class="contact">
       <div class="info">
@@ -64,18 +64,29 @@ const headerTpl = `
       </div>
     </div>
     <div class="navi">
-      <div id="site-logo"><a href="#"><img src="../image/logo/logo.png" alt="logo" title="logo">부산국제매직페스티벌</a></div>
+      <div id="site-logo">
+        <a href="#">
+          ${logo
+            ? `<img src="../image/logo/logo.png" alt="logo" title="logo">부산국제매직페스티벌`
+            : `<img src="${logo}" alt="logo" title="logo">`
+          }
+        </a>
+      </div>
       <nav id="gnb">
         <ul>
-          <li><a href="#">MENU1</a></li>
-          <li><a href="#">MENU2</a></li>
-          <li><a href="#">MENU3</a></li>
+          ${menu
+            ? menu.map(({url, title}) => `<li><a href="${url}">${title}</a></li>`).join('')
+            : `
+            <li><a href="#">MENU1</a></li>
+            <li><a href="#">MENU2</a></li>
+            <li><a href="#">MENU3</a></li>`}          
         </ul>
       </nav>
     </div>
   </header>
 `
-const footerTpl = `
+
+const footerRender = () => `
   <footer>
     <div id="admin-info">부산국제매직페스티벌 | Busan International Magic Festival<br>부산시 해운대구 123<br>TEL : 123-456-7890 | FAX : 098-765-4321 | E-mail : webskills@skills.com</div>
     <ul id="social">
@@ -86,9 +97,50 @@ const footerTpl = `
     <div id="copyright">Copyrightⓒ 2019, webskills all right reserved</div>
   </footer>
 `
-const previewTpl = `
-  ${headerTpl}
-  ${footerTpl}
+
+const Visual1Render = () => `
+  <section id="visual1" class="visual">
+    <div class="slide"></div>
+    <div class="slide"></div>
+    <div class="visual-text">
+      <h1>부산국제매직페스티벌</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
+      Learn more</p>
+      <a href="#" class="btn btn__green big">바로가기</a>
+    </div>
+  </section>
+`
+const Visual2Render = () => `
+  <section id="visual2" class="visual">
+    <input type="radio" name="slide" id="slide1" checked>
+    <input type="radio" name="slide" id="slide2">
+    <input type="radio" name="slide" id="slide3">
+    <div class="visual-text">
+      <h1>부산국제매직페스티벌</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
+      Learn more</p>
+      <a href="#" class="btn btn__green big">바로가기</a>
+    </div>
+    <div class="slide-section">
+      <div class="slide"></div>
+      <div class="slide"></div>
+      <div class="slide"></div>
+    </div>
+    <div class="btns">
+      <div>
+        <div class="slide-btn prev">
+          <label class="none">&lt;</label>
+          <label for="slide1">&lt;</label>
+          <label for="slide2">&lt;</label>
+        </div>
+        <div class="slide-btn next">
+          <label for="slide2">&gt;</label>
+          <label for="slide3">&gt;</label>
+          <label class="none">&gt;</label>
+        </div>
+      </div>
+    </div>
+  </section>
 `
 
 const app = async model => {
@@ -96,7 +148,10 @@ const app = async model => {
   const layerClose = e => {
     if (e.keyCode === 27 && $('.layer').length) $('.layer').remove()
   }
-  const template = () => $(`
+  const pageAdmin = async () => {
+    $('body').append(pageAdmin.template().outerHTML)
+  }
+  pageAdmin.template = () => $(`
     <div class="layer" id="pageAdminTpl">
       <span class="middle"></span><div>
         <a href="#" class="layer__close">X</a>
@@ -121,7 +176,7 @@ const app = async model => {
             </thead>
             <tbody>
               ${pageList.map((v, k) => `
-              <tr data-key="${k}" class="preview">
+              <tr data-key="${k}" class="${v.state ? 'preview' : '' }">
                 ${v.state ? `
                 <td>${v.id}</td>
                 <td>${v.title}</td>
@@ -150,14 +205,25 @@ const app = async model => {
       </div>
     </div>
   `)[0]
-  const pageAdd = () => {
-    pageList.forEach(v => v.state = true)
-    const page = { id: pageList.length + 1, title: '페이지 제목', description: '페이지 설명', keyword: '페이지 키워드', state: false, template: previewTpl }
-    pageList.push(page)
-    reload()
+  pageAdmin.reload = () => {
+    $('#pageAdminTpl').html(pageAdmin.template().innerHTML)
+    $('[autofocus]').focus()
     model.setPage(pageList)
   }
-  const pagePut = e => {
+  pageAdmin.add = () => {
+    pageList.forEach(v => v.state = true)
+    const page = {
+      id: pageList.length + 1,
+      title: '페이지 제목',
+      description: '페이지 설명',
+      keyword: '페이지 키워드',
+      state: false,
+      template: `${headerRender()}${footerRender()}`
+    }
+    pageList.push(page)
+    pageAdmin.reload()
+  }
+  pageAdmin.put = e => {
     const wrap = $(e.currentTarget).closest('[data-key]')
     const key = wrap.data('key')
     const values = wrap.find('[type="text"]')
@@ -168,39 +234,75 @@ const app = async model => {
       return false
     }
     pageList[key] = { id, title, description, keyword, state, template: pageList[key].template }
-    reload()
-    model.setPage(pageList)
+    pageAdmin.reload()
   }
-  const pageUpdate = e => {
+  pageAdmin.update = e => {
     const wrap = $(e.currentTarget).closest('[data-key]')
     const key = wrap.data('key')
     pageList.forEach(v => v.state = true)
     pageList[key].state = false
-    reload()
-    model.setPage(pageList)
   }
-  const reload = () => {
-    pageAdminTpl.innerHTML = template().innerHTML
-    $('[autofocus]').focus()
-  }
-  const pageAdmin = async () => {
-    $('body').append(template().outerHTML)
-  }
-
-  const pagePreview = e => {
+  pageAdmin.preview = e => {
     const key = $(e.currentTarget).closest('[data-key]').data('key')
     $('#preview').html(pageList[key].template)
+  }
+
+  const pageBuilder = e => {
+    const arr = [
+      { title: 'Visual' },
+      { title: 'Features' },
+      { title: 'Gallery&Slider' },
+      { title: 'Contacts' },
+    ]
+    $('body').append(`
+      <div class="layer">
+        <span class="middle"></span><div style="width:400px">
+          <a href="#" class="layer__close">X</a>
+          <h3 class="layer__title">페이지 제작</h3>
+          <div class="table" id="buildType">
+            <table>
+              <thead>
+                <tr>
+                  <th>유형</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${arr.map(({title}) => `
+                  <tr style="text-align:left;">
+                    <td>
+                      <a href="#" class="btn btn__default big to-main" data-type="${title}1">${title} 01</a>
+                      <a href="#" class="btn btn__default big to-main" data-type="${title}2">${title} 02</a>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `)
+  }
+  pageBuilder.append = e => {
+    if ($('#preview').html().length === 0) {
+      alert('미리보기를 선택해주세요')
+      return false
+    }
+    const type = e.target.dataset.type + 'Render'
+    const template = {Visual1Render, Visual2Render}[type]()
+    $('#preview footer').before(template)
   }
 
   $(document)
     .on('click', 'a[href="#"]', () => false)
     .on('click', '#pageAdmin', pageAdmin)
     .on('click', '.layer__close', () => $('.layer').remove())
-    .on('click', '#pageAdd', pageAdd)
-    .on('click', '#pagePut', pagePut)
-    .on('click', '#pageUpdate', pageUpdate)
-    .on('keyup', '#pageAdminTpl input', e => { if (e.keyCode === 13) pagePut(e) })
-    .on('click', '.preview', pagePreview)
+    .on('click', '#pageAdd', pageAdmin.add)
+    .on('click', '#pagePut', pageAdmin.put)
+    .on('click', '#pageUpdate', pageAdmin.update)
+    .on('keyup', '#pageAdminTpl input', e => { if (e.keyCode === 13) pageAdmin.put(e) })
+    .on('click', '.preview', pageAdmin.preview)
+    .on('click', '#pageBuilder', pageBuilder)
+    .on('click', '#buildType .btn', pageBuilder.append)
 
   $(window)
     .on('keydown', layerClose)
