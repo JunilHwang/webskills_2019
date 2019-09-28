@@ -41,7 +41,7 @@ const model = new class {
   }
 }
 
-const headerRender = ({logo, menu}) => `
+const headerRender = ({logo, menu} = {}) => `
   <header>
     <div class="contact">
       <div class="info">
@@ -66,9 +66,9 @@ const headerRender = ({logo, menu}) => `
     <div class="navi">
       <div id="site-logo">
         <a href="#">
-          ${logo
-            ? `<img src="../image/logo/logo.png" alt="logo" title="logo">부산국제매직페스티벌`
-            : `<img src="${logo}" alt="logo" title="logo">`
+          ${logo !== undefined
+            ? `<img src="${logo}" alt="logo" title="logo">`
+            : `<img src="../image/logo/logo.png" alt="logo" title="logo">부산국제매직페스티벌`
           }
         </a>
       </div>
@@ -98,7 +98,7 @@ const footerRender = () => `
   </footer>
 `
 
-const Visual1Render = () => `
+const visual1Render = () => `
   <section id="visual1" class="visual">
     <div class="slide"></div>
     <div class="slide"></div>
@@ -110,7 +110,7 @@ const Visual1Render = () => `
     </div>
   </section>
 `
-const Visual2Render = () => `
+const visual2Render = () => `
   <section id="visual2" class="visual">
     <input type="radio" name="slide" id="slide1" checked>
     <input type="radio" name="slide" id="slide2">
@@ -142,6 +142,299 @@ const Visual2Render = () => `
     </div>
   </section>
 `
+const feature1Render = () => `
+  <section id="feature1" class="content">
+    <h2>Features</h2>
+    <div class="wrap">
+      <article>
+        <img src="../image/icon/1.png" alt="icon1" title="icon1" class="img-body">
+        <h3>Lorem ipsum1</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
+        <button class="btn">Read More</button>
+      </article>
+      <article>
+        <img src="../image/icon/2.png" alt="icon2" title="icon2" class="img-body">
+        <h3>Lorem ipsum2</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
+        <button class="btn">Read More</button>
+      </article>
+      <article>
+        <img src="../image/icon/3.png" alt="icon3" title="icon3" class="img-body">
+        <h3>Lorem ipsum3</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
+        <button class="btn">Read More</button>
+      </article>
+    </div>
+  </section>
+`
+const feature2Render = () => `
+  <section id="feature2" class="content">
+    <h2>Features</h2>
+    <div class="wrap">
+      <article>
+        <div class="img">
+          <img src="../image/icon/4.png" alt="icon1" title="icon1" class="img-body">
+        </div>
+        <h3>Lorem ipsum1</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
+        <button type="button">Read More</button>
+      </article>
+      <article>
+        <div class="img">
+          <img src="../image/icon/5.png" alt="icon2" title="icon2" class="img-body">
+        </div>
+        <h3>Lorem ipsum2</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
+        <button type="button">Read More</button>
+      </article>
+      <article>
+        <div class="img">
+          <img src="../image/icon/6.png" alt="icon3" title="icon3" class="img-body">
+        </div>
+        <h3>Lorem ipsum3</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
+        <button type="button">Read More</button>
+      </article>
+    </div>
+  </section>
+`
+const gallery1Render = () => `
+  <section id="gallery1" class="content">
+    <h2>Gallery</h2>
+    <input type="radio" name="pos" id="pos1" checked>
+    <input type="radio" name="pos" id="pos2">
+    <input type="radio" name="modal" id="modal1">
+    <input type="radio" name="modal" id="modal2">
+    <input type="radio" name="modal" id="modal3">
+    <input type="radio" name="modal" id="modal4">
+    <input type="radio" name="modal" id="modal5">
+    <input type="radio" name="modal" id="modal6">
+    <input type="radio" name="modal" id="close">
+    <div id="modal">
+      <div class="wrap">
+        <img src="../image/gallery/19.jpg" alt="19.jpg" title="19.jpg">
+        <img src="../image/gallery/24.jpg" alt="24.jpg" title="24.jpg">
+        <img src="../image/gallery/11.jpg" alt="11.jpg" title="11.jpg">
+        <img src="../image/gallery/20.jpg" alt="20.jpg" title="20.jpg">
+        <img src="../image/gallery/27.jpg" alt="27.jpg" title="27.jpg">
+        <img src="../image/gallery/25.jpg" alt="25.jpg" title="25.jpg">
+        <label for="close">X</label>
+      </div>
+    </div>
+    <div class="wrap">
+      <div>
+        <article>
+          <label for="modal1"></label>
+          <div class="img"></div>
+          <div class="text">
+            <h3>Lorem ipsum1</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal2"></label>
+          <div class="img"></div>
+          <div class="text">
+            <h3>Lorem ipsum2</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal3"></label>
+          <div class="img"></div>
+          <div class="text">
+            <h3>Lorem ipsum3</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal4"></label>
+          <div class="img"></div>
+          <div class="text">
+            <h3>Lorem ipsum4</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal5"></label>
+          <div class="img"></div>
+          <div class="text">
+            <h3>Lorem ipsum5</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal6"></label>
+          <div class="img"></div>
+          <div class="text">
+            <h3>Lorem ipsum6</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+    <div class="btns">
+      <label for="pos1"></label>
+      <label for="pos2"></label>
+    </div>
+  </section>
+`
+const gallery2Render = () => `
+  <section id="gallery2" class="content">
+    <h2>Gallery</h2>
+    <input type="radio" name="modal" id="modal1">
+    <input type="radio" name="modal" id="modal2">
+    <input type="radio" name="modal" id="modal3">
+    <input type="radio" name="modal" id="modal4">
+    <input type="radio" name="modal" id="modal5">
+    <input type="radio" name="modal" id="modal6">
+    <input type="radio" name="modal" id="modal7">
+    <input type="radio" name="modal" id="close">
+    <div id="modal">
+      <div class="wrap">
+        <img src="../image/gallery/19.jpg" alt="19.jpg" title="19.jpg">
+        <img src="../image/gallery/24.jpg" alt="24.jpg" title="24.jpg">
+        <img src="../image/gallery/11.jpg" alt="11.jpg" title="11.jpg">
+        <img src="../image/gallery/20.jpg" alt="20.jpg" title="20.jpg">
+        <img src="../image/gallery/27.jpg" alt="27.jpg" title="27.jpg">
+        <img src="../image/gallery/25.jpg" alt="25.jpg" title="25.jpg">
+        <img src="../image/gallery/26.jpg" alt="26.jpg" title="26.jpg">
+        <label for="close">X</label>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="left side">
+        <article>
+          <label for="modal1"></label>
+          <div class="text">
+            <h3>Lorem ipsum1</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal2"></label>
+          <div class="text">
+            <h3>Lorem ipsum2</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+      </div>
+      <div class="middle">
+        <article>
+          <label for="modal3"></label>
+          <div class="text">
+            <h3>Lorem ipsum3</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal4"></label>
+          <div class="text">
+            <h3>Lorem ipsum4</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal5"></label>
+          <div class="text">
+            <h3>Lorem ipsum5</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+      </div>
+      <div class="right side">
+        <article>
+          <label for="modal6"></label>
+          <div class="text">
+            <h3>Lorem ipsum6</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+        <article>
+          <label for="modal7"></label>
+          <div class="text">
+            <h3>Lorem ipsum7</h3>
+            <p class="sub">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            <p class="desc">Tempore harum laborum eos nisi rerum ad aspernatur explicabo. Obcaecati commodi ipsa, corporis, dolores saepe exercitationem perspiciatis esse quos totam autem iure.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+`
+const contact1Render = () => `
+  <section id="contacts1">
+    <div class="wrap">
+      <form class="contact-form">
+        <h2>Contact Us</h2>
+        <label for="name"><input type="text" name="name" id="name" placeholder="이름을 입력하세요."></label>
+        <label for="email"><input type="email" name="email" id="email" placeholder="이메일을 입력하세요."></label>
+        <label for="message">
+          <textarea name="message" id="message" placeholder="메시지를 입력하세요."></textarea>
+        </label>
+        <button type="submit" class="btn">전송</button>
+      </form>
+      <div class="contact-info">
+        <h3>Contact information</h3>
+        <div>
+          <div class="address">
+            <div class="icon"><img src="../image/icon/location.png" alt="location" title="location"></div>
+            <p>주소 : 부산시 해운대구 123</p>
+          </div>
+          <div class="tel">
+            <div class="icon"><img src="../image/icon/phone.png" alt="phone" title="phone"></div>
+            <p>전화번호 : 123-456-7890</p>
+          </div>
+          <div class="email">
+            <div class="icon"><img src="../image/icon/email.png" alt="email" title="email"></div>
+            <p>이메일 : webskills@skills.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+`
+const contact2Render = () => `
+  <section id="contacts2">
+    <div class="contact-info">
+      <div>
+        <article class="address">
+          <div class="icon"><img src="../image/icon/location.png" alt="location" title="location"></div>
+          <p>주소 : 부산시 해운대구 123</p>
+        </article>
+        <article class="tel">
+          <div class="icon"><img src="../image/icon/phone.png" alt="phone" title="phone"></div>
+          <p>전화번호 : 123-456-7890</p>
+        </article>
+        <article class="email">
+          <div class="icon"><img src="../image/icon/email.png" alt="email" title="email"></div>
+          <p>이메일 : webskills@skills.com</p>
+        </article>
+      </div>
+    </div>
+    <form class="contact-form">
+      <h2>Contact Us</h2>
+      <label for="name"><input type="text" name="name" id="name" placeholder="이름을 입력하세요."></label>
+      <label for="email"><input type="email" name="email" id="email" placeholder="이메일을 입력하세요."></label>
+      <label for="message">
+        <textarea name="message" id="message" placeholder="메시지를 입력하세요."></textarea>
+      </label>
+      <button type="submit" class="btn">전송</button>
+    </form>
+  </section>
+`
 
 const app = async model => {
   const pageList = await model.getPage()
@@ -160,10 +453,10 @@ const app = async model => {
           <table>
             <colgroup>
               <col width="10%" />
-              <col width="30%" />
               <col width="25%" />
               <col width="25%" />
-              <col width="10%" />
+              <col width="20%" />
+              <col width="20%" />
             </colgroup>
             <thead>
               <tr>
@@ -182,17 +475,13 @@ const app = async model => {
                 <td>${v.title}</td>
                 <td>${v.description}</td>
                 <td>${v.keyword}</td>
-                <td>
-                  <a href="#" id="pageUpdate" class="btn btn__default">페이지 수정</a>
-                </td>
+                <td><a href="#" id="pageUpdate" class="btn btn__default">페이지 수정</a></td>
                 ` : `
                 <td><input type="text" class="fields__input full" size="10" value="${v.id}" autofocus /></td>
                 <td><input type="text" class="fields__input full" size="25" value="${v.title}" /></td>
                 <td><input type="text" class="fields__input full" size="25" value="${v.description}" /></td>
                 <td><input type="text" class="fields__input full" size="25" value="${v.keyword}" /></td>
-                <td>
-                  <a href="#" id="pagePut" class="btn btn__default">수정 완료</a>
-                </td>
+                <td><a href="#" id="pagePut" class="btn btn__default">수정 완료</a></td>
                 `}
               </tr>
               `).join('')}
@@ -249,10 +538,10 @@ const app = async model => {
 
   const pageBuilder = e => {
     const arr = [
-      { title: 'Visual' },
-      { title: 'Features' },
-      { title: 'Gallery&Slider' },
-      { title: 'Contacts' },
+      { title: 'Visual', method: 'visual' },
+      { title: 'Features', method: 'feature' },
+      { title: 'Gallery&Slider', method: 'gallery' },
+      { title: 'Contacts', method: 'contact' },
     ]
     $('body').append(`
       <div class="layer">
@@ -267,11 +556,11 @@ const app = async model => {
                 </tr>
               </thead>
               <tbody>
-                ${arr.map(({title}) => `
+                ${arr.map(({title, method}) => `
                   <tr style="text-align:left;">
                     <td>
-                      <a href="#" class="btn btn__default big to-main" data-type="${title}1">${title} 01</a>
-                      <a href="#" class="btn btn__default big to-main" data-type="${title}2">${title} 02</a>
+                      <a href="#" class="btn btn__default big to-main" data-method="${method}1">${title} 01</a>
+                      <a href="#" class="btn btn__default big to-main" data-method="${method}2">${title} 02</a>
                     </td>
                   </tr>
                 `).join('')}
@@ -287,9 +576,15 @@ const app = async model => {
       alert('미리보기를 선택해주세요')
       return false
     }
-    const type = e.target.dataset.type + 'Render'
-    const template = {Visual1Render, Visual2Render}[type]()
-    $('#preview footer').before(template)
+    const method = e.target.dataset.method + 'Render'
+    console.log(method)
+    const render = {
+      visual1Render, visual2Render,
+      feature1Render, feature2Render,
+      gallery1Render, gallery2Render,
+      contact1Render, contact2Render
+    }[method]()
+    $('#preview footer').before(render)
   }
 
   $(document)
