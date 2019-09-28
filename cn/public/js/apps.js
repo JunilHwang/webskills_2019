@@ -42,7 +42,7 @@ const model = new class {
 }
 
 const headerRender = ({logo, menu} = {}) => `
-  <header>
+  <header data-option="header">
     <div class="contact">
       <div class="info">
         <div>
@@ -87,7 +87,7 @@ const headerRender = ({logo, menu} = {}) => `
 `
 
 const footerRender = () => `
-  <footer>
+  <footer data-option="footer">
     <div id="admin-info">부산국제매직페스티벌 | Busan International Magic Festival<br>부산시 해운대구 123<br>TEL : 123-456-7890 | FAX : 098-765-4321 | E-mail : webskills@skills.com</div>
     <ul id="social">
       <li><a href="#"><img src="../image/icon/social1.png" alt="social1" title="social1"></a></li>
@@ -99,7 +99,7 @@ const footerRender = () => `
 `
 
 const visual1Render = () => `
-  <section id="visual1" class="visual">
+  <section data-option="visual1" class="visual visual1">
     <div class="slide"></div>
     <div class="slide"></div>
     <div class="visual-text">
@@ -111,7 +111,7 @@ const visual1Render = () => `
   </section>
 `
 const visual2Render = () => `
-  <section id="visual2" class="visual">
+  <section data-option="visual2" class="visual visual2">
     <input type="radio" name="slide" id="slide1" checked>
     <input type="radio" name="slide" id="slide2">
     <input type="radio" name="slide" id="slide3">
@@ -143,7 +143,7 @@ const visual2Render = () => `
   </section>
 `
 const feature1Render = () => `
-  <section id="feature1" class="content">
+  <section data-option="feature1" class="content feature1">
     <h2>Features</h2>
     <div class="wrap">
       <article>
@@ -168,7 +168,7 @@ const feature1Render = () => `
   </section>
 `
 const feature2Render = () => `
-  <section id="feature2" class="content">
+  <section data-option="feature2" class="content feature2">
     <h2>Features</h2>
     <div class="wrap">
       <article>
@@ -199,7 +199,7 @@ const feature2Render = () => `
   </section>
 `
 const gallery1Render = () => `
-  <section id="gallery1" class="content">
+  <section data-option="gallery1" class="content gallery1">
     <h2>Gallery</h2>
     <input type="radio" name="pos" id="pos1" checked>
     <input type="radio" name="pos" id="pos2">
@@ -286,7 +286,7 @@ const gallery1Render = () => `
   </section>
 `
 const gallery2Render = () => `
-  <section id="gallery2" class="content">
+  <section data-option="gallery2" class="content gallery2">
     <h2>Gallery</h2>
     <input type="radio" name="modal" id="modal1">
     <input type="radio" name="modal" id="modal2">
@@ -375,7 +375,7 @@ const gallery2Render = () => `
   </section>
 `
 const contact1Render = () => `
-  <section id="contacts1">
+  <section data-option="contact1" class="contacts1 ">
     <div class="wrap">
       <form class="contact-form">
         <h2>Contact Us</h2>
@@ -407,7 +407,7 @@ const contact1Render = () => `
   </section>
 `
 const contact2Render = () => `
-  <section id="contacts2">
+  <section data-option="contact2" class="contacts2">
     <div class="contact-info">
       <div>
         <article class="address">
@@ -586,6 +586,18 @@ const app = async model => {
     }[method]()
     $('#preview footer').before(render)
   }
+  pageBuilder.select = e => {
+    const before = $('#preview>.active').removeClass('active')
+    const after = $(e.currentTarget)
+    $('#templateOption').remove()
+    if (before === after) return false
+    after.addClass('active')
+    const option = afetr.data('option')
+     $(`<a id="templateOption" href="#" class="btn btn__green big" data-option="${option}">설정</a>`).appendTo('.builder-top__right')
+  }
+  pageBuilder.optionOpen = e => {
+    
+  }
 
   $(document)
     .on('click', 'a[href="#"]', () => false)
@@ -598,6 +610,8 @@ const app = async model => {
     .on('click', '.preview', pageAdmin.preview)
     .on('click', '#pageBuilder', pageBuilder)
     .on('click', '#buildType .btn', pageBuilder.append)
+    .on('click', '#preview>*', pageBuilder.select)
+    .on('click', '#templateOption', pageBuilder.optionOpen)
 
   $(window)
     .on('keydown', layerClose)
