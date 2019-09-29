@@ -4,6 +4,7 @@ const model = new class {
     res.onupgradeneeded = e => {
       const idb = e.target.result
       idb.createObjectStore('pages', {keyPath: 'idx', autoIncrement: true})
+      idb.createObjectStore('images', {keyPath: 'idx', autoIncrement: true})
       this.idb = idb
     }
     return new Promise(resolve => {
@@ -36,8 +37,15 @@ const model = new class {
     }
     return JSON.parse(pages.json)
   }
+  async getImages () {
+    let pages = await model.query('fetchAll', {table: 'images'})
+    return pages
+  }
   setPage (pages) {
     model.query('update', {table: 'pages', column: {idx: 1, json: JSON.stringify(pages)}})
+  }
+  postImage (src) {
+    model.query('insert', {table: 'images', column: { src }})
   }
 }
 
@@ -147,6 +155,8 @@ const app = async model => {
     const target = pageList[key]
     target.selected = true
     $('#preview').html(target.template)
+    slide1()
+    slide2()
     model.setPage(pageList)
   }
   pageAdmin.load = e => {
@@ -155,6 +165,8 @@ const app = async model => {
       $('#preview').html(selected.template)
       $('#preview .active').click()
     }
+    slide1()
+    slide2()
   }
 
   const pageBuilder = e => {
@@ -197,6 +209,7 @@ const app = async model => {
       alert('미리보기를 선택해주세요')
       return false
     }
+    $('#templateOption').remove()
     $('#preview').html(`${headerRender()}${footerRender()}`)
     pageBuilder.save()
   }
@@ -212,6 +225,8 @@ const app = async model => {
       gallery1Render, gallery2Render,
       contact1Render, contact2Render
     }[method]()
+    slide1()
+    slide2()
     $('#preview footer').before(render)
   }
   pageBuilder.select = e => {
@@ -225,7 +240,7 @@ const app = async model => {
     pageBuilder.save()
   }
   pageBuilder.optionOpen = e => {
-    const selected = $('#preview>.active')
+    let selected = $('#preview>.active')
     const key = selected.attr('data-render')
     const filter = selected[0].dataset.filter || null
     const urls = pageList.map(v => v.id)
@@ -251,77 +266,124 @@ const app = async model => {
         </div>
       </div>`)
     $('body').append(layer)
-    layer.on('change', '#logoUploader', e => {
-      const files = e.target.files
-      if ($('#logoUploaded')) $('#logoUploaded').remove()
-      if (files.length) {
-        const file = files[0]
-        const reader = new FileReader()
-        reader.onload = () => {
-          $(e.target).after(`<img src="${reader.result}" alt="logo" id="logoUploaded" width="200" />`)
+    layer
+      .on('change', '#logoUploader', e => {
+        const files = e.target.files
+        if ($('#logoUploaded')) $('#logoUploaded').remove()
+        if (files.length) {
+          const file = files[0]
+          const reader = new FileReader()
+          reader.onload = () => {
+            $(e.target).after(`<img src="${reader.result}" alt="logo" id="logoUploaded" width="200" />`)
+          }
+          reader.readAsDataURL(file)
         }
-        reader.readAsDataURL(file)
-      }
-    }).on('submit', 'form', e => {
-      e.preventDefault()
-      const frm = e.target
-      const action = frm.action.value
-      switch (action) {
-        case 'header' :
-          if ([null, 'logo'].indexOf(filter) !== -1) {
-            const uploaded = $('#logoUploaded')
-            const logo = uploaded.length ? uploaded[0].src : (frm.logo.value || null)
-            Object.assign(option, { logo })
-          }
-          if ([null, 'menu'].indexOf(filter) !== -1) {
-            const menu = [];
-            frm.menu_title.forEach((v, k) => {
-              if (v.value.length > 0) {
-                menu.push({
-                  title: v.value,
-                  url: frm.menu_url[k].value
-                })
-              }
-            })
-            if (menu.length < 3) {
-              alert('메뉴는 최소 3개 이상 입력해야됩니다.')
-              return false
+      })
+      .on('submit', 'form', e => {
+        e.preventDefault()
+        const frm = e.target
+        const action = frm.action.value
+        switch (action) {
+          case 'header' :
+            if ([null, 'logo'].indexOf(filter) !== -1) {
+              const uploaded = $('#logoUploaded')
+              const logo = uploaded.length ? uploaded[0].src : (frm.logo.value || null)
+              Object.assign(option, { logo })
             }
-            Object.assign(option, { menu })
-          }
-        break
-        case 'visual' :
-          option.title = option.title || {}
-          option.description = option.description || {}
-          option.btn = option.btn || {}
-          if (filter === null) {
-            option.title.hide = frm.title_hide.value*1
-            option.description.hide = frm.description_hide.value*1
-            option.btn.hide = frm.btn_hide.value*1
-          }
-          if (['title', 'description'].indexOf(filter) !== -1){
-            const [text, color, size] = [frm.text.value, frm.color.value, frm.size.value]
-            option[filter].style  = color ? `color:${color};` : ''
-            option[filter].style += size ? `font-size:${size}px;` : ''
-            option[filter] = {...option[filter], text, color, size}
-          }
-          if (filter === 'btn'){
-            const [text, url] = [frm.text.value, frm.url.value]
-            option[filter] = {...option[filter], text, url}
-          }
-        break;
-      }
-      const temp = $(templateRenderer(option))
-      temp.addClass('active')
-      selected[0].outerHTML = temp[0].outerHTML
-      $('.layer').remove()
-      pageBuilder.save()
-    })
+            if ([null, 'menu'].indexOf(filter) !== -1) {
+              const menu = [];
+              frm.menu_title.forEach((v, k) => {
+                if (v.value.length > 0) {
+                  menu.push({
+                    title: v.value,
+                    url: frm.menu_url[k].value
+                  })
+                }
+              })
+              if (menu.length < 3) {
+                alert('메뉴는 최소 3개 이상 입력해야됩니다.')
+                return false
+              }
+              Object.assign(option, { menu })
+            }
+          break
+          case 'visual' :
+            option.title = option.title || {}
+            option.description = option.description || {}
+            option.btn = option.btn || {}
+            if (filter === null) {
+              option.title.hide = frm.title_hide.value*1
+              option.description.hide = frm.description_hide.value*1
+              option.btn.hide = frm.btn_hide.value*1
+            }
+            if (['title', 'description'].indexOf(filter) !== -1){
+              const [text, color, size] = [frm.text.value, frm.color.value, frm.size.value]
+              option[filter].style  = color ? `color:${color};` : ''
+              option[filter].style += size ? `font-size:${size}px;` : ''
+              option[filter] = {...option[filter], text, color, size}
+            }
+            if (filter === 'btn'){
+              const [text, url] = [frm.text.value, frm.url.value]
+              option[filter] = {...option[filter], text, url}
+            }
+          break;
+        }
+        const temp = $(templateRenderer(option))
+        temp.addClass('active')
+        selected[0].outerHTML = temp[0].outerHTML
+        selected = $('#preview>.active')
+        $('.layer').remove()
+        pageBuilder.save()
+        if (action === 'visual') {
+          slide1()
+          slide2()
+        }
+      })
+      .on('click', '#visualImageUpdate', async () => {
+        const uploaded = await model.getImages()
+        const layer = $(visualImageRender(option.image || [], uploaded))
+        $('body').append(layer)
+        layer
+          .on('change', '[name="uploaded"]', e => {
+            const files = e.target.files
+            if (files.length) {
+              const file = files[0]
+              const reader = new FileReader()
+              reader.onload = () => {
+                const src = reader.result
+                model.postImage(src)
+                uploaded.push({ src })
+                const rerender = $(visualImageRender(option.image || [], uploaded)).html()
+                layer.html(rerender)
+              }
+              reader.readAsDataURL(file)
+            }          
+          })
+          .on('change', '[name="img"]', e => {
+            const image = []
+            e.target.form.img.forEach(v => {
+              if (v.checked) image.push(v.value)
+            })
+            if (image.length === 0) {
+              e.target.checked = true
+              image.push(e.target.value)
+            }
+            option.image = image
+            const temp = $(templateRenderer(option))
+            temp.addClass('active')
+            selected[0].outerHTML = temp[0].outerHTML
+            selected = $('#preview>.active')
+            pageBuilder.save()
+            slide1()
+            slide2()
+          })
+      })
   }
   pageBuilder.optionOpenFilter = e => {
     const filter = e.currentTarget.dataset.context
+    console.log(filter)
     const parent = $(e.currentTarget).closest('[data-render]')
-    if (!parent.hasClass('active')) return true
+    parent.click()
     parent.attr('data-filter', filter)
     $('#templateOption').click()
     return false
@@ -329,6 +391,39 @@ const app = async model => {
   pageBuilder.save = () => {
     pageList.find(v => v.selected).template = $('#preview').html()
     model.setPage(pageList)
+  }
+  const slide1 = () => {
+    $('.visual1').each(function () {
+      const wrap = $(this)
+      let pos = 0
+      const len = wrap.find('.slide').length
+      wrap.find('.slide').eq(pos).addClass('active')
+      setInterval(() => {
+        wrap.find('.slide.active').removeClass('active')
+        pos = (pos + 1) % len
+        wrap.find('.slide').eq(pos).addClass('active')
+      }, 3000)
+    })
+  }
+  const slide2 = () => {
+    $('.visual2').each(function () {
+      const wrap = $(this)
+      let pos = 0
+      const len = wrap.find('.slide').length
+      wrap.find('.slide-section').css('width', len * 100 + '%')
+      wrap.find('.slide').css('width', 100 / len + '%')
+      const play = () => {
+        pos = (pos + 1) % len
+        wrap.find('.slide-section').css('margin-left', -pos * 100 + '%')
+        wrap.find('.none').removeClass('none')
+        if (pos === 0) wrap.find('.prev').addClass('none')
+        if (pos === len - 1) wrap.find('.next').addClass('none')
+      }
+      wrap.on('click', '.slide-btn:not(.none)', e => {
+        if ($(e.currentTarget).hasClass('prev')) pos -= 2
+        play()
+      })
+    })
   }
 
   $(pageAdmin.load)

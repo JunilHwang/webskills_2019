@@ -69,34 +69,23 @@ const visual1Render = ({title, description, btn, image} = {}) => `
 `
 const visual2Render = ({title, description, btn, image} = {}) => `
   <section data-render="visual2" data-option='${JSON.stringify({title, description, btn, image})}' class="visual visual2">
-    <input type="radio" name="slide" id="slide1" checked>
-    <input type="radio" name="slide" id="slide2">
-    <input type="radio" name="slide" id="slide3">
     <div class="visual-text">
       <h1 ${title && title.hide === 0 ? 'class="hide"' : ''} data-context="title" ${title ? `style="${title.style}"` : ''}>${title && title.text ? title.text : '부산국제매직페스티벌'}</h1>
       <p ${description && description.hide === 0 ? 'class="hide"' : ''} data-context="description" ${description ? `style="${description.style}"` : ''}>${description && description.text ? description.text : `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
       Learn more`}</p>
       <a href="${btn && btn.url ? btn.url : '#'}" data-context="btn" class="btn btn__green big  ${btn && btn.hide === 0 ? 'hide ' : ''}">${btn && btn.text ? btn.text : '바로가기'}</a>
     </div>
-    <div class="slide-section">
-      <div class="slide"></div>
-      <div class="slide"></div>
-      <div class="slide"></div>
+    <div class="slide-section" data-context="image">
+      ${image
+      ? image.map(v => `<div class="slide" data-context="image" style="background-image:url(${v})"></div>`).join('')
+      : `
+        <div class="slide" data-context="image"></div>
+        <div class="slide" data-context="image"></div>
+        <div class="slide" data-context="image"></div>
+      `}
     </div>
-    <div class="btns">
-      <div>
-        <div class="slide-btn prev">
-          <label class="none">&lt;</label>
-          <label for="slide1">&lt;</label>
-          <label for="slide2">&lt;</label>
-        </div>
-        <div class="slide-btn next">
-          <label for="slide2">&gt;</label>
-          <label for="slide3">&gt;</label>
-          <label class="none">&gt;</label>
-        </div>
-      </div>
-    </div>
+    <a href="#" class="slide-btn prev none">&lt;</a>
+    <a href="#" class="slide-btn next">&gt;</a>
   </section>
 `
 const feature1Render = () => `
@@ -411,7 +400,7 @@ const headerOptionRender = ({logo, menu} = option, filter = null, urls) => `
             ${['logo1', 'logo2', 'logo3'].map(v => `
             <label class="fields__custom-radio">
               <input type="radio" name="logo" value="../image/logo/${v}.png" ${v === logo ? 'checked' : ''} />
-              <img src="../image/logo/${v}.png" alt="${v}" />
+              <img src="../image/logo/${v}.png" alt="${v}" height="30" />
             </label>
             `).join('')}
           </div>
@@ -453,7 +442,7 @@ const visualOptionRender = ({title, description, btn, image} = option, filter = 
       <ul>
         ${filter === null ? [title, description, btn].map((v, k) => `
         <li>
-          <span class="fields__list">타이틀</span>
+          <span class="fields__list">${['타이틀', '요약설명', '바로가기 버튼'][k]}</span>
           <div>
             <label class="fields__custom-radio">
               <input type="radio" name="${['title', 'description', 'btn'][k]}_hide" value="1" ${[undefined, 1].indexOf(v && v.hide) !== -1 ? 'checked' : ''} />
@@ -539,4 +528,42 @@ const visualOptionRender = ({title, description, btn, image} = option, filter = 
       </ul>
     </fieldset>
   </form>
+`
+const visualImageRender = (images, uploaded) => `
+  <div class="layer">
+    <span class="middle"></span><div>
+      <a href="#" class="layer__close">X</a>
+      <h3 class="layer__title">비주얼 이미지 수정</h3>
+      <form class="fields">
+        <fieldset>
+          <legend class="legend">비주얼 이미지 수정</legend>
+          <ul class="fields">
+            <li>
+              <label>
+                <span class="fields__list">이미지 업로드</span>
+                <input type="file" name="uploaded" class="fields__input full"  />
+              </label>
+            </li>
+            <li>
+              <span class="fields__list">이미지 선택</span>
+              <div>
+                ${[1, 2, 3, 4, 5, 6, 7].map(v => `
+                <label class="fields__custom-radio">
+                  <input type="checkbox" name="img" value="../image/visual/${v}.jpg" ${images.indexOf(`../image/visual/${v}.jpg`) !== -1 ? 'checked' :'' } />
+                  <img src="../image/visual/${v}.jpg" alt="visual" height="100" />
+                </label>
+                `).join('')}
+                ${uploaded.map(({ src }) => `
+                <label class="fields__custom-radio">
+                  <input type="checkbox" name="img" value="${src}" ${images.indexOf(src) !== -1 ? 'checked' :'' } />
+                  <img src="${src}" alt="visual" height="100" />
+                </label>
+                `).join('')}
+              </div>
+            </li>
+          </ul>
+        </fieldset>
+      </form>
+    </div>
+  </div>
 `
