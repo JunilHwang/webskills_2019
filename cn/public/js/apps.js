@@ -155,8 +155,7 @@ const app = async model => {
     const target = pageList[key]
     target.selected = true
     $('#preview').html(target.template)
-    slide1()
-    slide2()
+    slide()
     model.setPage(pageList)
   }
   pageAdmin.load = e => {
@@ -165,8 +164,7 @@ const app = async model => {
       $('#preview').html(selected.template)
       $('#preview .active').click()
     }
-    slide1()
-    slide2()
+    slide()
   }
 
   const pageBuilder = e => {
@@ -225,9 +223,8 @@ const app = async model => {
       gallery1Render, gallery2Render,
       contact1Render, contact2Render
     }[method]()
-    slide1()
-    slide2()
     $('#preview footer').before(render)
+    slide()
   }
   pageBuilder.select = e => {
     const before = $('#preview>.active').removeClass('active')
@@ -368,10 +365,7 @@ const app = async model => {
         selected = $('#preview>.active')
         $('.layer').remove()
         pageBuilder.save()
-        if (action === 'visual') {
-          slide1()
-          slide2()
-        }
+        if (action === 'visual') slide()
       })
       .on('click', '#visualImageUpdate', async () => {
         const uploaded = await model.getImages()
@@ -408,8 +402,7 @@ const app = async model => {
             selected[0].outerHTML = temp[0].outerHTML
             selected = $('#preview>.active')
             pageBuilder.save()
-            slide1()
-            slide2()
+            slide()
           })
       })
   }
@@ -425,7 +418,7 @@ const app = async model => {
     pageList.find(v => v.selected).template = $('#preview').html()
     model.setPage(pageList)
   }
-  const slide1 = () => {
+  const slide = () => {
     $('.visual1').each(function () {
       const wrap = $(this)
       let pos = 0
@@ -436,9 +429,8 @@ const app = async model => {
         pos = (pos + 1) % len
         wrap.find('.slide').eq(pos).addClass('active')
       }, 3000)
+
     })
-  }
-  const slide2 = () => {
     $('.visual2').each(function () {
       const wrap = $(this)
       let pos = 0
@@ -461,6 +453,7 @@ const app = async model => {
         if ($(e.currentTarget).hasClass('prev')) pos -= 2
         play()
       })
+
     })
   }
 
