@@ -88,64 +88,46 @@ const visual2Render = ({title, description, btn, image} = {}) => `
     <a href="#" class="slide-btn next">&gt;</a>
   </section>
 `
-const feature1Render = () => `
-  <section data-render="feature1" data-option='null' class="content feature1">
-    <h2>Features</h2>
-    <div class="wrap">
-      <article>
-        <img src="../image/icon/1.png" alt="icon1" title="icon1" class="img-body">
-        <h3>Lorem ipsum1</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
-        <button class="btn">Read More</button>
-      </article>
-      <article>
-        <img src="../image/icon/2.png" alt="icon2" title="icon2" class="img-body">
-        <h3>Lorem ipsum2</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
-        <button class="btn">Read More</button>
-      </article>
-      <article>
-        <img src="../image/icon/3.png" alt="icon3" title="icon3" class="img-body">
-        <h3>Lorem ipsum3</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
-        <button class="btn">Read More</button>
-      </article>
-    </div>
-  </section>
-`
-const feature2Render = () => `
-  <section data-render="feature2" data-option='null' class="content feature2">
-    <h2>Features</h2>
-    <div class="wrap">
-      <article>
-        <div class="img">
-          <img src="../image/icon/4.png" alt="icon1" title="icon1" class="img-body">
-        </div>
-        <h3>Lorem ipsum1</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
-        <button type="button">Read More</button>
-      </article>
-      <article>
-        <div class="img">
-          <img src="../image/icon/5.png" alt="icon2" title="icon2" class="img-body">
-        </div>
-        <h3>Lorem ipsum2</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
-        <button type="button">Read More</button>
-      </article>
-      <article>
-        <div class="img">
-          <img src="../image/icon/6.png" alt="icon3" title="icon3" class="img-body">
-        </div>
-        <h3>Lorem ipsum3</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!</p>
-        <button type="button">Read More</button>
-      </article>
-    </div>
-  </section>
-`
+const feature1Render = ({title, hide, article} = {}) => (
+  hide = hide || {icon:1, title: 1, desc:1, link: 1},
+  `
+    <section data-render="feature1" data-option='${JSON.stringify({ title, hide, article })}' class="content feature1">
+      <h2>${title || 'Features'}</h2>
+      <div class="wrap">
+        ${(article || [{}, {}, {}]).map(({icon, title, desc, link}, k) => `
+          <article>
+            <img data-context="icon,${k}" class="${(hide.icon) === 0 ? 'hide': ''}" src="${icon || `../image/icon/${k + 1}.png`}" alt="icon${k + 1}" title="icon${k + 1}" class="img-body">
+            <h3 style="${title ? title.style : ''}" data-context="title,${k}" class="${(hide.title) === 0 ? 'hide': ''}">${title && title.text ? title.text : 'Lorem ipsum1'}</h3>
+            <p style="${desc ? desc.style : ''}" data-context="desc,${k}" class="${(hide.desc) === 0 ? 'hide': ''}">${desc && desc.text ? desc.text : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!'}</p>
+            <a data-context="link,${k}" href="${link ? link.url : '#'}" class="btn btn__main ${(hide.link) === 0 ? 'hide': ''}">${link ? link.text : 'Read More'}</a>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+  `
+)
+const feature2Render = ({title, hide, article} = {}) => (
+  hide = hide || {icon:1, title: 1, desc:1, link: 1},
+  `
+    <section data-render="feature2" data-option='${JSON.stringify({ title, hide, article })}' class="content feature2">
+      <h2>${title || 'Features'}</h2>
+      <div class="wrap">
+        ${(article || [{}, {}, {}]).map(({icon, title, desc, link}, k) => `
+        <article>
+          <div data-context="icon,${k}" class="img ${(hide.icon) === 0 ? 'hide': ''}">
+            <img src="${icon || `../image/icon/${k + 4}.png`}" alt="icon${k + 1}" title="icon${k + 1}" class="img-body">
+          </div>
+          <h3 style="${title ? title.style : ''}" data-context="title,${k}" class="${(hide.title) === 0 ? 'hide': ''}">${title && title.text ? title.text : 'Lorem ipsum1'}</h3>
+          <p style="${desc ? desc.style : ''}" data-context="desc,${k}" class="${(hide.desc) === 0 ? 'hide': ''}">${desc && desc.text ? desc.text : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam officia aspernatur nisi ut eligendi consectetur voluptate, fuga magni quasi. Nisi ratione veniam id illum, facere reiciendis assumenda quis quod maxime!'}</p>
+          <a data-context="link,${k}" href="${link ? link.url : '#'}" class="btn btn__main ${(hide.link) === 0 ? 'hide': ''}">${link ? link.text : 'Read More'}</a>
+        </article>
+        `).join('')}
+      </div>
+    </section>
+  `
+)
 const gallery1Render = () => `
-  <section data-render="gallery1" data-option='null' class="content gallery1">
+  <section data-render="gallery1" data-option='${JSON.parse({})}' class="content gallery1">
     <h2>Gallery</h2>
     <input type="radio" name="pos" id="pos1" checked>
     <input type="radio" name="pos" id="pos2">
@@ -232,7 +214,7 @@ const gallery1Render = () => `
   </section>
 `
 const gallery2Render = () => `
-  <section data-render="gallery2" data-option='null' class="content gallery2">
+  <section data-render="gallery2" data-option='${JSON.parse({})}' class="content gallery2">
     <h2>Gallery</h2>
     <input type="radio" name="modal" id="modal1">
     <input type="radio" name="modal" id="modal2">
@@ -321,7 +303,7 @@ const gallery2Render = () => `
   </section>
 `
 const contact1Render = () => `
-  <section data-render="contact1" data-option='null' class="contacts1 ">
+  <section data-render="contact1" data-option='${JSON.parse({})}' class="contacts1 ">
     <div class="wrap">
       <form class="contact-form">
         <h2>Contact Us</h2>
@@ -353,7 +335,7 @@ const contact1Render = () => `
   </section>
 `
 const contact2Render = () => `
-  <section data-render="contact2" data-option='null' class="contacts2">
+  <section data-render="contact2" data-option='${JSON.parse({})}' class="contacts2">
     <div class="contact-info">
       <div>
         <article class="address">
@@ -437,7 +419,7 @@ const headerOptionRender = ({logo, menu} = option, filter = null, urls) => `
 const visualOptionRender = ({title, description, btn, image} = option, filter = null, urls) => `
   <form class="fields">
     <fieldset>
-      <legend class="legend">Header 옵션 설정</legend>
+      <legend class="legend">Visual 옵션 설정</legend>
       <input type="hidden" name="action" value="visual" />
       <ul>
         ${filter === null ? [title, description, btn].map((v, k) => `
@@ -515,7 +497,7 @@ const visualOptionRender = ({title, description, btn, image} = option, filter = 
             <select name="url" class="fields__input">
               <option value="#">#</option>
               ${urls ? urls.map(v => `
-              <option value="${v}">${v}</option>
+              <option value="${v}" ${btn && btn.url && v === btn.url ? ' selected' : ''}>${v}</option>
               `).join('') : ''}
             </select>
           </label>
@@ -567,3 +549,137 @@ const visualImageRender = (images, uploaded) => `
     </div>
   </div>
 `
+const featureOptionRender = ({title, hide, article} = option, filter = null, urls) => {
+  const init = { title: null, desc: null, link: null, icon: null }
+  article = article || [{...init}, {...init}, {...init}]
+  const [type, key] = (filter || '').split(',')
+  const selected = key !== undefined ? article[key] : {...init}
+  return `
+    <form class="fields">
+      <fieldset>
+        <legend class="legend">Feature 옵션 설정</legend>
+        <input type="hidden" name="action" value="feature" />
+        <ul>
+          ${type === '' ? `
+          <li>
+            <label>
+              <span class="fields__list">문단 타이틀</span>
+              <input type="text" name="title" class="fields__input full" value="${title || ''}" />
+            </label>
+          </li>
+          <li>
+            <span class="fields__list">타이틀</span>
+            <div>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_title" value="1" ${[undefined, 1].indexOf((hide && hide.title)) !== -1 ? 'checked' : ''} />
+                <span>보이기</span>
+              </label>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_title" value="0" ${[undefined, 1].indexOf((hide && hide.title)) === -1 ? 'checked' : ''} />
+                <span>감추기</span>
+              </label>
+            </div>
+          </li>
+          <li>
+            <span class="fields__list">아이콘</span>
+            <div>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_icon" value="1" ${[undefined, 1].indexOf((hide && hide.icon)) !== -1 ? 'checked' : ''} />
+                <span>보이기</span>
+              </label>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_icon" value="0" ${[undefined, 1].indexOf((hide && hide.icon)) === -1 ? 'checked' : ''} />
+                <span>감추기</span>
+              </label>
+            </div>
+          </li>
+          <li>
+            <span class="fields__list">텍스트</span>
+            <div>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_desc" value="1" ${[undefined, 1].indexOf((hide && hide.desc)) !== -1 ? 'checked' : ''} />
+                <span>보이기</span>
+              </label>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_desc" value="0" ${[undefined, 1].indexOf((hide && hide.desc)) === -1 ? 'checked' : ''} />
+                <span>감추기</span>
+              </label>
+            </div>
+          </li>
+          <li>
+            <span class="fields__list">링크버튼</span>
+            <div>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_link" value="1" ${[undefined, 1].indexOf((hide && hide.link)) !== -1 ? 'checked' : ''} />
+                <span>보이기</span>
+              </label>
+              <label class="fields__custom-radio">
+                <input type="radio" name="hide_link" value="0" ${[undefined, 1].indexOf((hide && hide.link)) === -1 ? 'checked' : ''} />
+                <span>감추기</span>
+              </label>
+            </div>
+          </li>
+          ` : `
+          ${['title', 'desc'].indexOf(type) !== -1 ? `
+          <li>
+            <label>
+              <span class="fields__list">텍스트</span>
+              <input type="text" name="text" class="fields__input full" value="${selected[type] ? selected[type].text : ''}" />
+            </label>
+          </li>
+          <li>
+            <label>
+              <span class="fields__list">색상</span>
+              <input type="text" name="color" class="fields__input" value="${selected[type] ? selected[type].color : ''}" onkeyup="$(this).next().css('background', this.value)" placeholder="ex) #fff" />
+              <span style="display:inline-block;width:30px;height:30px;vertical-align:middle;margin-left:10px;background:${selected[type] ? selected[type].color : '#fff'};border:1px solid #bebebe"></span>
+            </label>
+          </li>
+          <li>
+            <label>
+              <span class="fields__list">폰트크기</span>
+              <input type="number" min="0" name="size" class="fields__input" value="${selected[type] ? selected[type].size : ''}" />
+            </label>
+          </li>
+          ` : ''}
+          ${type === 'link' ? `
+          <li>
+            <label>
+              <span class="fields__list">텍스트</span>
+              <input type="text" name="text" class="fields__input full" value="${selected[type] ? selected[type].text : ''}" />
+            </label>
+          </li>
+          <li>
+            <label>
+              <span class="fields__list">링크</span>
+              <select name="url" class="fields__input">
+                <option value="#">#</option>
+                ${urls ? urls.map(v => `
+                <option value="${v}" ${selected[type] && v === selected[type].url ? ' selected' : ''}>${v}</option>
+                `).join('') : ''}
+              </select>
+            </label>
+          </li>
+          ` : ''}
+          ${type === 'icon' ? `
+          <li>
+            <span class="fields__list">아이콘 선택</span>
+            <div>
+              ${[1, 2, 3, 4, 5, 6].map(v => `
+              <label class="fields__custom-radio">
+                <input type="radio" name="icon" value="../image/icon/${v}.png" ${ selected[type] === v ? ' checked' : '' } />
+                <img src="../image/icon/${v}.png" alt="visual" height="30" />
+              </label>
+              `).join('')}
+            </div>
+          </li>
+          ` : ''}
+          `}
+          <li class="fields__buttons center">
+            <button type="submit" class="btn btn__main big">적용</button>
+            <button type="button" class="btn btn__default big" onclick="$('.layer__close').click();">취소</button>
+          </li>
+        </ul>
+      </fieldset>
+    </form>
+  `
+}

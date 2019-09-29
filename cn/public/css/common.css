@@ -145,7 +145,7 @@ header > .navi a{color:#000;}
 .feature1 img{max-height:50px;}
 .feature1 h3{font-size:20px;padding:20px 0 10px 0;}
 .feature1 p{font-size:13px;}
-.feature1 button{margin-top:15px;}
+.feature1 .btn{margin-top:15px;}
 
 /*feature2*/
 .feature2 > .wrap{display:flex;justify-content:space-between;width:1200px;margin:0 auto;}

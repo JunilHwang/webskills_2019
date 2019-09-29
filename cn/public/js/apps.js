@@ -247,8 +247,9 @@ const app = async model => {
     selected.removeAttr('data-filter')
     let option = selected[0].dataset.option
     if (typeof option === 'string') option = JSON.parse(option)
+    console.log(key.replace(/(1|2)/, '')+'OptionRender')
     const optionRenderer = {
-      headerOptionRender, visualOptionRender,
+      headerOptionRender, visualOptionRender, featureOptionRender
     }[key.replace(/(1|2)/, '')+'OptionRender']
     const templateRenderer = {
       headerRender, footerRender,
@@ -327,6 +328,39 @@ const app = async model => {
               option[filter] = {...option[filter], text, url}
             }
           break;
+          case 'feature' :
+            if (filter === null) {
+              option.title = frm.title.value
+              option.hide = {
+                title: frm.hide_title.value*1,
+                icon: frm.hide_icon.value*1,
+                desc: frm.hide_desc.value*1,
+                link: frm.hide_link.value*1
+              }
+            } else {
+              const [type, k] = filter.split(',')
+              const init = { title: null, desc: null, link: null, icon: null, }
+              option.article = option.article || [{...init}, {...init}, {...init}]
+              const article = option.article[k]
+              let text, color, size, url, style
+              switch (type) {
+                case 'title' :
+                case 'desc' :
+                  [text, color, size] = [frm.text.value, frm.color.value, frm.size.value * 1];
+                  style  = color ? `color:${color};` : ''
+                  style += size ? `font-size:${size}px;` : ''
+                  article[type] = {text, color, size, style}
+                break
+                case 'link' :
+                  [text, url] = [frm.text.value, frm.url.value];
+                  article[type] = {text, url}
+                break
+                case 'icon' :
+                  article[type] = frm.icon.value
+                break
+              }
+            }
+          break;
         }
         const temp = $(templateRenderer(option))
         temp.addClass('active')
@@ -381,7 +415,6 @@ const app = async model => {
   }
   pageBuilder.optionOpenFilter = e => {
     const filter = e.currentTarget.dataset.context
-    console.log(filter)
     const parent = $(e.currentTarget).closest('[data-render]')
     parent.click()
     parent.attr('data-filter', filter)
@@ -410,7 +443,12 @@ const app = async model => {
       const wrap = $(this)
       let pos = 0
       const len = wrap.find('.slide').length
-      wrap.find('.slide-section').css('width', len * 100 + '%')
+      wrap.find('.slide-section').css({
+        'width': len * 100 + '%',
+        'margin-left': 0
+      })
+      wrap.find('.none').removeClass('none')
+      wrap.find('.prev').addClass('none')
       wrap.find('.slide').css('width', 100 / len + '%')
       const play = () => {
         pos = (pos + 1) % len
