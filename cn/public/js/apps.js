@@ -218,7 +218,9 @@ const app = async model => {
   pageBuilder.optionOpen = e => {
     const selected = $('#preview>.active')
     const key = selected.attr('data-render') + 'OptionRender'
-    const {option, filter} = selected[0].dataset
+    const filter = selected[0].dataset.filter
+    let option = selected[0].dataset.option
+    if (typeof option === 'string') option = JSON.parse(option)
     if (key === 'headerOptionRender') option.urls = pageList.map(v => v.id)
     const renderer = { headerOptionRender }[key]
     const layer = $(`
@@ -230,27 +232,30 @@ const app = async model => {
         </div>
       </div>`)
     $('body').append(layer)
-    layer
-      .on('change', '#logoUploader', e => {
-        const files = e.target.files
-        if ($('#logoUploaded')) $('#logoUploaded').remove()
-        if (files.length) {
-          const file = files[0]
-          const reader = new FileReader()
-          reader.onload = () => {
-            $(e.target).after(`<img src="${reader.result}" alt="logo" id="logoUploaded" width="200" />`)
-          }
-          reader.readAsDataURL(file)
+    layer.on('change', '#logoUploader', e => {
+      const files = e.target.files
+      if ($('#logoUploaded')) $('#logoUploaded').remove()
+      if (files.length) {
+        const file = files[0]
+        const reader = new FileReader()
+        reader.onload = () => {
+          $(e.target).after(`<img src="${reader.result}" alt="logo" id="logoUploaded" width="200" />`)
         }
-      })
-      .on('submit', 'form', e => {
-        e.preventDefault()
-        const frm = e.target
-        const action = frm.action.value
-        switch (action) {
-          case 'header' :
+        reader.readAsDataURL(file)
+      }
+    }).on('submit', 'form', e => {
+      e.preventDefault()
+      const frm = e.target
+      const action = frm.action.value
+      switch (action) {
+        case 'header' :
+          if ([null, 'logo'].indexOf(filter) !== -1) {
             const uploaded = $('#logoUploaded')
             const logo = uploaded.length ? uploaded[0].src : (frm.logo.value || null)
+            console.log(logo)
+            Object.assign(option, { logo })
+          }
+          if ([null, 'menu'].indexOf(filter) !== -1) {
             const menu = [];
             frm.menu_title.forEach((v, k) => {
               if (v.value.length > 0) {
@@ -264,14 +269,16 @@ const app = async model => {
               alert('메뉴는 최소 3개 이상 입력해야됩니다.')
               return false
             }
-            const temp = $(headerRender({logo, menu}))
-            temp.addClass('active')
-            selected[0].outerHTML = temp[0].outerHTML
-            $('.layer').remove()
-            pageBuilder.save()
-          break
-        }
-      })
+            Object.assign(option, { menu })
+          }
+          const temp = $(headerRender(option))
+          temp.addClass('active')
+          selected[0].outerHTML = temp[0].outerHTML
+          $('.layer').remove()
+          pageBuilder.save()
+        break
+      }
+    })
   }
   pageBuilder.optionOpenFilter = e => {
     const filter = e.currentTarget.dataset.context

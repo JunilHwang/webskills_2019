@@ -398,6 +398,7 @@ const headerOptionRender = ({logo, menu, urls} = option, filter = null) => `
       <legend class="legend">Header 옵션 설정</legend>
       <input type="hidden" name="action" value="header" />
       <ul>
+        ${[null, 'logo'].indexOf(filter) !== -1 ? `
         <li>
           <label>
             <span class="fields__list">이미지 업로드</span>
@@ -414,7 +415,8 @@ const headerOptionRender = ({logo, menu, urls} = option, filter = null) => `
             </label>
             `).join('')}
           </div>
-        </li>
+        </li>` : ''}
+        ${[null, 'menu'].indexOf(filter) !== -1 ? `
         <li>
           <span class="fields__list">메뉴 설정</span>
           ${[1,2,3,4,5].map((v, k) => `
@@ -427,14 +429,14 @@ const headerOptionRender = ({logo, menu, urls} = option, filter = null) => `
               <span>메뉴${v} URL</span>
               <select name="menu_url" class="fields__input">
                 <option value="#">#</option>
-                ${urls.map(v => `
+                ${urls ? urls.map(v => `
                 <option value="${v}">${v}</option>
-                `).join('')}
+                `).join('') : ''}
               </select>
             </label>
           </div>
           `).join('')}
-        </li>
+        </li>` : ``}
         <li class="fields__buttons center">
           <button type="submit" class="btn btn__main big">적용</button>
           <button type="button" class="btn btn__default big" onclick="$('.layer__close').click();">취소</button>
