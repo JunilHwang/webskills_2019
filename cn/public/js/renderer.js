@@ -54,29 +54,29 @@ const footerRender = () => `
     <div id="copyright">Copyrightⓒ 2019, webskills all right reserved</div>
   </footer>
 `
-
-const visual1Render = () => `
-  <section data-render="visual1" data-option='null' class="visual visual1">
-    <div class="slide"></div>
-    <div class="slide"></div>
+const visual1Render = ({title, description, btn, image} = {}) => `
+  <section data-render="visual1" data-option='${JSON.stringify({title, description, btn, image})}' class="visual visual1">
+    ${image
+      ? image.map(v => `<div class="slide" data-context="image" style="background-image:url(${v})"></div>`).join('')
+      : `<div class="slide" data-context="image"></div>`}
     <div class="visual-text">
-      <h1>부산국제매직페스티벌</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
-      Learn more</p>
-      <a href="#" class="btn btn__green big">바로가기</a>
+      <h1 ${title && title.hide === 0 ? 'class="hide"' : ''} data-context="title" ${title ? `style="${title.style}"` : ''}>${title && title.text ? title.text : '부산국제매직페스티벌'}</h1>
+      <p ${description && description.hide === 0 ? 'class="hide"' : ''} data-context="description" ${description ? `style="${description.style}"` : ''}>${description && description.text ? description.text : `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
+      Learn more`}</p>
+      <a href="${btn && btn.url ? btn.url : '#'}" data-context="btn" class="btn btn__green big  ${btn && btn.hide === 0 ? 'hide ' : ''}">${btn && btn.text ? btn.text : '바로가기'}</a>
     </div>
   </section>
 `
-const visual2Render = () => `
-  <section data-render="visual2" data-option='null' class="visual visual2">
+const visual2Render = ({title, description, btn, image} = {}) => `
+  <section data-render="visual2" data-option='${JSON.stringify({title, description, btn, image})}' class="visual visual2">
     <input type="radio" name="slide" id="slide1" checked>
     <input type="radio" name="slide" id="slide2">
     <input type="radio" name="slide" id="slide3">
     <div class="visual-text">
-      <h1>부산국제매직페스티벌</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
-      Learn more</p>
-      <a href="#" class="btn btn__green big">바로가기</a>
+      <h1 ${title && title.hide === 0 ? 'class="hide"' : ''} data-context="title" ${title ? `style="${title.style}"` : ''}>${title && title.text ? title.text : '부산국제매직페스티벌'}</h1>
+      <p ${description && description.hide === 0 ? 'class="hide"' : ''} data-context="description" ${description ? `style="${description.style}"` : ''}>${description && description.text ? description.text : `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Neque maxime error fugiat, non, accusantium atque. Dolores velit, reiciendis repellendus odit illo unde. Qui error labore perferendis quos veritatis, voluptatibus itaque.
+      Learn more`}</p>
+      <a href="${btn && btn.url ? btn.url : '#'}" data-context="btn" class="btn btn__green big  ${btn && btn.hide === 0 ? 'hide ' : ''}">${btn && btn.text ? btn.text : '바로가기'}</a>
     </div>
     <div class="slide-section">
       <div class="slide"></div>
@@ -392,7 +392,7 @@ const contact2Render = () => `
     </form>
   </section>
 `
-const headerOptionRender = ({logo, menu, urls} = option, filter = null) => `
+const headerOptionRender = ({logo, menu} = option, filter = null, urls) => `
   <form class="fields">
     <fieldset>
       <legend class="legend">Header 옵션 설정</legend>
@@ -437,6 +437,101 @@ const headerOptionRender = ({logo, menu, urls} = option, filter = null) => `
           </div>
           `).join('')}
         </li>` : ``}
+        <li class="fields__buttons center">
+          <button type="submit" class="btn btn__main big">적용</button>
+          <button type="button" class="btn btn__default big" onclick="$('.layer__close').click();">취소</button>
+        </li>
+      </ul>
+    </fieldset>
+  </form>
+`
+const visualOptionRender = ({title, description, btn, image} = option, filter = null, urls) => `
+  <form class="fields">
+    <fieldset>
+      <legend class="legend">Header 옵션 설정</legend>
+      <input type="hidden" name="action" value="visual" />
+      <ul>
+        ${filter === null ? [title, description, btn].map((v, k) => `
+        <li>
+          <span class="fields__list">타이틀</span>
+          <div>
+            <label class="fields__custom-radio">
+              <input type="radio" name="${['title', 'description', 'btn'][k]}_hide" value="1" ${[undefined, 1].indexOf(v && v.hide) !== -1 ? 'checked' : ''} />
+              <span>보이기</span>
+            </label>
+            <label class="fields__custom-radio">
+              <input type="radio" name="${['title', 'description', 'btn'][k]}_hide" value="0" ${[undefined, 1].indexOf(v && v.hide) === -1 ? 'checked' : ''} />
+              <span>감추기</span>
+            </label>
+          </div>
+        </li>
+        `).join('') : ''}
+        ${filter === 'image' ? `
+        <li>
+          <span class="fields__list">비주얼 이미지</span>
+          <a href="#" id="visualImageUpdate" data-image="${JSON.stringify(image || '[]')}" class="btn btn__green big">비주얼이미지수정</a>
+        </li>` : ''}
+        ${filter === 'title' ? `
+        <li>
+          <label>
+            <span class="fields__list">타이틀 텍스트</span>
+            <input type="text" name="text" class="fields__input full" value="${title && title.text ? title.text : ''}" />
+          </label>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">타이틀 색상</span>
+            <input type="text" name="color" class="fields__input" value="${title && title.color ? title.color : ''}" onkeyup="$(this).next().css('background', this.value)" placeholder="ex) #fff" />
+            <span style="display:inline-block;width:30px;height:30px;vertical-align:middle;margin-left:10px;background:${title && title.color ? title.color : '#fff'};border:1px solid #bebebe"></span>
+          </label>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">타이틀 폰트크기</span>
+            <input type="number" min="0" name="size" class="fields__input full" value="${title && title.size ? title.size : ''}" />
+          </label>
+        </li>
+        ` : ''}
+        ${filter === 'description' ? `
+        <li>
+          <label>
+            <span class="fields__list">요약설명 텍스트</span>
+            <input type="text" name="text" class="fields__input full" value="${description && description.text ? description.text : ''}" />
+          </label>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">요약설명 색상</span>
+            <input type="text" name="color" class="fields__input" value="${description && description.color ? description.color : ''}" onkeyup="$(this).next().css('background', this.value)" placeholder="ex) #fff" />
+            <span style="display:inline-block;width:30px;height:30px;vertical-align:middle;margin-left:10px;background:${description && description.color ? description.color : '#fff'};border:1px solid #bebebe"></span>
+          </label>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">요약설명 폰트크기</span>
+            <input type="number" min="0" name="size" class="fields__input full" value="${description && description.size ? description.size : ''}" />
+          </label>
+        </li>
+        ` : ''}
+        ${filter === 'btn' ? `
+        <li>
+          <label>
+            <span class="fields__list">바로가기 텍스트</span>
+            <input type="text" name="text" class="fields__input full" value="${btn && btn.text ? btn.text : ''}" />
+          </label>
+        </li>
+        <li>
+          <label>
+            <span class="fields__list">바로가기 링크</span>
+            <select name="url" class="fields__input">
+              <option value="#">#</option>
+              ${urls ? urls.map(v => `
+              <option value="${v}">${v}</option>
+              `).join('') : ''}
+            </select>
+          </label>
+        </li>
+        ` : ''}
         <li class="fields__buttons center">
           <button type="submit" class="btn btn__main big">적용</button>
           <button type="button" class="btn btn__default big" onclick="$('.layer__close').click();">취소</button>

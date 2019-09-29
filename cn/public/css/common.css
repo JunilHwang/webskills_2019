@@ -82,6 +82,7 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 #preview{margin-top:50px;}
 #preview>*{position:relative;}
 #preview>*.active{border:3px solid #09F;}
+#preview .hide{display:none;}
 
 /*Header*/
 header > div{padding:0 100px;display:flex;justify-content:space-between;align-items:center;}
@@ -104,37 +105,23 @@ header > .navi a{color:#000;}
 
 /*Main-Visual*/
 .visual{height:600px;position:relative;display:flex;justify-content:center;align-items:center;}
-.visual:before,
 .visual > .slide,
+.visual .slide:before,
 .visual > .slide-section{position:absolute;width:100%;height:100%;top:0;left:0;}
-.visual:before{background:#2c2e50;opacity:.5;z-index:10;display:block;content:"";}
-.visual-text{color:#fff;position:relative;z-index:20;text-align:center;}
+.visual .slide:before{background:#2c2e50;opacity:0.5;display:block;content:"";}
+.visual-text{color:#fff;position:absolute;z-index:20;text-align:center;}
 .visual-text > h1{font-size:40px;margin-bottom:20px;}
 .visual-text > p{font-size:15px;width:500px;padding-bottom:30px;letter-spacing:-1px}
 
 /*visual1*/
-.visual1 > .slide{opacity:0;z-index:5;}
-.visual1 > .slide:nth-child(1){background:url(../image/visual/2.jpg) no-repeat center / cover;animation:slide1 10s infinite;}
-.visual1 > .slide:nth-child(2){background:url(../image/visual/7.jpg) no-repeat center / cover;animation:slide2 10s infinite;}
-@keyframes slide1{
-  100%,
-  0%,
-  45%{opacity:.7;}
-  50%,
-  95%{opacity:0;}
-}
-@keyframes slide2{
-  100%,
-  0%,
-  45%{opacity:0;}
-  50%,
-  95%{opacity:.7;}
-}
+.visual1 > .slide{opacity:0.7;}
+.visual1 > .slide:nth-child(1){background:url(../image/visual/2.jpg) no-repeat center / cover;}
+.visual1 > .slide:nth-child(2){background:url(../image/visual/7.jpg) no-repeat center / cover;}
 
 /*visual2*/
 .visual2{overflow:hidden;}
 .visual2 > .slide-section{width:300%;transition:.5s;height:100%;}
-.visual2 .slide{float:left;width:calc(100%/3);height:100%;}
+.visual2 .slide{float:left;width:calc(100%/3);height:100%;position:relative;}
 .visual2 .slide:nth-child(1){background:url(../image/visual/1.jpg) no-repeat center / cover;}
 .visual2 .slide:nth-child(2){background:url(../image/visual/2.jpg) no-repeat center / cover;}
 .visual2 .slide:nth-child(3){background:url(../image/visual/3.jpg) no-repeat center / cover;}

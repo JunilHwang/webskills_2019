@@ -44,7 +44,9 @@ const model = new class {
 const app = async model => {
   const pageList = await model.getPage()
   const layerClose = e => {
-    if (e.keyCode === 27 && $('.layer').length) $('.layer').remove()
+    if (e.keyCode === 27 && $('.layer').length) {
+      $('.layer:last-child').remove()
+    }
   }
   const pageAdmin = async () => {
     $('body').append(pageAdmin.template().outerHTML)
@@ -190,13 +192,20 @@ const app = async model => {
       </div>
     `)
   }
+  pageBuilder.reset = e => {
+    if ($('#preview').html().length === 0) {
+      alert('미리보기를 선택해주세요')
+      return false
+    }
+    $('#preview').html(`${headerRender()}${footerRender()}`)
+    pageBuilder.save()
+  }
   pageBuilder.append = e => {
     if ($('#preview').html().length === 0) {
       alert('미리보기를 선택해주세요')
       return false
     }
     const method = e.target.dataset.method + 'Render'
-    console.log(method)
     const render = {
       visual1Render, visual2Render,
       feature1Render, feature2Render,
@@ -217,18 +226,28 @@ const app = async model => {
   }
   pageBuilder.optionOpen = e => {
     const selected = $('#preview>.active')
-    const key = selected.attr('data-render') + 'OptionRender'
-    const filter = selected[0].dataset.filter
+    const key = selected.attr('data-render')
+    const filter = selected[0].dataset.filter || null
+    const urls = pageList.map(v => v.id)
+    selected.removeAttr('data-filter')
     let option = selected[0].dataset.option
     if (typeof option === 'string') option = JSON.parse(option)
-    if (key === 'headerOptionRender') option.urls = pageList.map(v => v.id)
-    const renderer = { headerOptionRender }[key]
+    const optionRenderer = {
+      headerOptionRender, visualOptionRender,
+    }[key.replace(/(1|2)/, '')+'OptionRender']
+    const templateRenderer = {
+      headerRender, footerRender,
+      visual1Render, visual2Render,
+      feature1Render, feature2Render,
+      gallery1Render, gallery2Render,
+      contact1Render, contact2Render
+    }[key + 'Render']
     const layer = $(`
       <div class="layer">
         <span class="middle"></span><div>
           <a href="#" class="layer__close">X</a>
           <h3 class="layer__title">옵션 설정</h3>
-          ${renderer(option, filter)}
+          ${optionRenderer(option, filter, urls)}
         </div>
       </div>`)
     $('body').append(layer)
@@ -252,7 +271,6 @@ const app = async model => {
           if ([null, 'logo'].indexOf(filter) !== -1) {
             const uploaded = $('#logoUploaded')
             const logo = uploaded.length ? uploaded[0].src : (frm.logo.value || null)
-            console.log(logo)
             Object.assign(option, { logo })
           }
           if ([null, 'menu'].indexOf(filter) !== -1) {
@@ -271,18 +289,39 @@ const app = async model => {
             }
             Object.assign(option, { menu })
           }
-          const temp = $(headerRender(option))
-          temp.addClass('active')
-          selected[0].outerHTML = temp[0].outerHTML
-          $('.layer').remove()
-          pageBuilder.save()
         break
+        case 'visual' :
+          option.title = option.title || {}
+          option.description = option.description || {}
+          option.btn = option.btn || {}
+          if (filter === null) {
+            option.title.hide = frm.title_hide.value*1
+            option.description.hide = frm.description_hide.value*1
+            option.btn.hide = frm.btn_hide.value*1
+          }
+          if (['title', 'description'].indexOf(filter) !== -1){
+            const [text, color, size] = [frm.text.value, frm.color.value, frm.size.value]
+            option[filter].style  = color ? `color:${color};` : ''
+            option[filter].style += size ? `font-size:${size}px;` : ''
+            option[filter] = {...option[filter], text, color, size}
+          }
+          if (filter === 'btn'){
+            const [text, url] = [frm.text.value, frm.url.value]
+            option[filter] = {...option[filter], text, url}
+          }
+        break;
       }
+      const temp = $(templateRenderer(option))
+      temp.addClass('active')
+      selected[0].outerHTML = temp[0].outerHTML
+      $('.layer').remove()
+      pageBuilder.save()
     })
   }
   pageBuilder.optionOpenFilter = e => {
     const filter = e.currentTarget.dataset.context
     const parent = $(e.currentTarget).closest('[data-render]')
+    if (!parent.hasClass('active')) return true
     parent.attr('data-filter', filter)
     $('#templateOption').click()
     return false
@@ -295,13 +334,14 @@ const app = async model => {
   $(pageAdmin.load)
     .on('click', 'a[href="#"]', () => false)
     .on('click', '#pageAdmin', pageAdmin)
-    .on('click', '.layer__close', () => $('.layer').remove())
+    .on('click', '.layer__close', e => $(e.currentTarget).closest('.layer').remove())
     .on('click', '#pageAdd', pageAdmin.add)
     .on('click', '#pagePut', pageAdmin.put)
     .on('click', '#pageUpdate', pageAdmin.update)
     .on('keyup', '#pageAdminTpl input', e => { if (e.keyCode === 13) pageAdmin.put(e) })
     .on('click', '.preview', pageAdmin.preview)
     .on('click', '#pageBuilder', pageBuilder)
+    .on('click', '#pageReset', pageBuilder.reset)
     .on('click', '#buildType .btn', pageBuilder.append)
     .on('click', '#preview>*', pageBuilder.select)
     .on('click', '#templateOption', pageBuilder.optionOpen)
