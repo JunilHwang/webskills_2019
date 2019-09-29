@@ -38,15 +38,22 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .fields__list{display:block;cursor:pointer;padding:10px 0;}
 .fields__list+.fields__list{border-top:1px solid #ddd;}
 .fields__label{display:block;margin-bottom:5px;}
-.fields__input{padding:10px 5px;border:1px solid #ddd;color:#666;border-radius:3px;transition:0.3s;font-size:15px;}
+.fields__input{padding:10px 5px;border:1px solid #ddd;color:#666;border-radius:3px;transition:0.3s;font-size:15px;background:#fff;}
 .fields__input::placeholder{color:#bbb;}
 .fields__input:focus{border-bottom:1px solid #09f;outline:none;}
 .fields__input.full{box-sizing:border-box;width:100%;}
+.fields__input-list{margin:3px 0;display:flex;align-items:center;}
+.fields__input-list label{width:50%;}
+.fields__input-list span{display:inline-block;width:100px;}
 .fields__buttons{padding-top:15px;}
-.fields__custom-radio{display:inline-block;}
+.fields__buttons.center{text-align:center;}
+.fields__custom-radio{display:inline-block;cursor:pointer;}
 .fields__custom-radio input{display:none;}
 .fields__custom-radio span{display:block;border:1px solid #ddd;padding:5px 10px;font-size:13px;transition:.3s;cursor:pointer;border-radius:3px;background:#fff;}
+.fields__custom-radio img{height:30px;border:2px solid #ddd;background:#fff;padding:20px;}
 .fields__custom-radio input:checked+span{border-color:#09f;background:#09f;color:#fff;}
+.fields__custom-radio input:checked+img{border-color:#09F;}
+#logoUploaded{padding:15px;background:#fff;border:2px solid #09F;margin-top:10px;}
 
 /* table */
 .table table{width:100%;background:#fff;text-align:center;border-spacing:0;border-collapse:collapse}
@@ -75,8 +82,6 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 #preview{margin-top:50px;}
 #preview>*{position:relative;}
 #preview>*.active{border:3px solid #09F;}
-#preview>*.active:after{content:"컨텐츠의 설정을 변경할 수 있습니다.";display:block;position:absolute;left:0;right:0;top:0;bottom:0;background:rgba(0, 153, 255, 0.5);display:flex;justify-content:center;align-items:center;color:#fff;font-size:30px;font-weight:bold;}
-#preview>*.active:hover:after{display:none;}
 
 /*Header*/
 header > div{padding:0 100px;display:flex;justify-content:space-between;align-items:center;}
