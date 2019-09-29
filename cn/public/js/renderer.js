@@ -22,14 +22,14 @@ const headerRender = ({logo, menu} = {}) => `
     </div>
     <div class="navi">
       <div id="site-logo">
-        <a href="#">
+        <a href="#" data-context="logo">
           ${logo
             ? `<img src="${logo}" alt="logo" title="logo">`
             : `<img src="../image/logo/logo.png" alt="logo" title="logo">부산국제매직페스티벌`
           }
         </a>
       </div>
-      <nav id="gnb">
+      <nav id="gnb" data-context="menu">
         <ul>
           ${menu
             ? menu.map(({url, title}) => `<li><a href="${url}">${title}</a></li>`).join('')
@@ -392,7 +392,7 @@ const contact2Render = () => `
     </form>
   </section>
 `
-const headerOptionRender = ({logo, menu, urls} = option) => `
+const headerOptionRender = ({logo, menu, urls} = option, filter = null) => `
   <form class="fields">
     <fieldset>
       <legend class="legend">Header 옵션 설정</legend>

@@ -149,7 +149,10 @@ const app = async model => {
   }
   pageAdmin.load = e => {
     const selected = pageList.find(v => v.selected === true)
-    if (selected) $('#preview').html(selected.template)
+    if (selected) {
+      $('#preview').html(selected.template)
+      $('#preview .active').click()
+    }
   }
 
   const pageBuilder = e => {
@@ -209,13 +212,13 @@ const app = async model => {
     if (before === after) return false
     after.addClass('active')
     const option = after.data('option')
-     $(`<a id="templateOption" href="#" class="btn btn__green big" data-option="${option}">설정</a>`).appendTo('.builder-top__right')
+    $(`<a id="templateOption" href="#" class="btn btn__green big" data-option="${option}">설정</a>`).appendTo('.builder-top__right')
+    pageBuilder.save()
   }
   pageBuilder.optionOpen = e => {
     const selected = $('#preview>.active')
     const key = selected.attr('data-render') + 'OptionRender'
-    const option = selected.data('option')
-    console.log(option)
+    const {option, filter} = selected[0].dataset
     if (key === 'headerOptionRender') option.urls = pageList.map(v => v.id)
     const renderer = { headerOptionRender }[key]
     const layer = $(`
@@ -223,7 +226,7 @@ const app = async model => {
         <span class="middle"></span><div>
           <a href="#" class="layer__close">X</a>
           <h3 class="layer__title">옵션 설정</h3>
-          ${renderer(option)}
+          ${renderer(option, filter)}
         </div>
       </div>`)
     $('body').append(layer)
@@ -265,9 +268,21 @@ const app = async model => {
             temp.addClass('active')
             selected[0].outerHTML = temp[0].outerHTML
             $('.layer').remove()
-           break
+            pageBuilder.save()
+          break
         }
       })
+  }
+  pageBuilder.optionOpenFilter = e => {
+    const filter = e.currentTarget.dataset.context
+    const parent = $(e.currentTarget).closest('[data-render]')
+    parent.attr('data-filter', filter)
+    $('#templateOption').click()
+    return false
+  }
+  pageBuilder.save = () => {
+    pageList.find(v => v.selected).template = $('#preview').html()
+    model.setPage(pageList)
   }
 
   $(pageAdmin.load)
@@ -283,6 +298,7 @@ const app = async model => {
     .on('click', '#buildType .btn', pageBuilder.append)
     .on('click', '#preview>*', pageBuilder.select)
     .on('click', '#templateOption', pageBuilder.optionOpen)
+    .on('contextmenu', '[data-context]', pageBuilder.optionOpenFilter)
 
   $(window)
     .on('keydown', layerClose)
