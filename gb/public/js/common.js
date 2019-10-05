@@ -12,7 +12,7 @@ const Drawing = class {
 }
 const Line = class extends Drawing {
   constructor ({x, y}) { super('path'); this.set({x, y}) }
-  set ({x ,y }) { super.set({x, y}); this._target.setAttribute('d', `M${x} ${y}`) }
+  set ({x ,y }) { super.set({x, y}); setAttr(this._target, {d: `M${x} ${y}`, 'stroke-linecap': 'round'}) }
   drawing ({x, y}) { this._target.attributes.d.value += `L${x} ${y} ` }
 }
 const Rect = class extends Drawing {
@@ -89,6 +89,7 @@ const selectEvent = e => {
         return
       }
       const index = clip.data('key')
+      $('.clone').remove()
       clip.remove()
       timeline.find('li').each((k, v) => v.setAttribute('data-key', timeline.find('li').length - k - 1))
       data.clips[index].el.remove()
@@ -96,8 +97,8 @@ const selectEvent = e => {
       if (data.clips.length === 0) $('.timeline ul').empty()
     break
     case selected === 'all' :
-      data.clips.forEach(v => v.el.remove())
       data.clips = []
+      $('.video-wrap svg').empty()
       $('.timeline ul').empty()
     break
     case selected === 'down' : donwloadVideo(); break
@@ -110,6 +111,7 @@ const selectEvent = e => {
       $this.parent().find('.draw.active').removeClass('active')
       $this.addClass('active')
       $('.video-wrap svg .active').attr('class', '')
+      $('.video-wrap svg .clone').remove()
       $('.timeline li.active').removeClass('active')
       data.selected = selected
     break
@@ -148,7 +150,10 @@ const sortClip = e => {
   })
   const temp = keys.map(v => data.clips[v])
   data.clips = temp
-  temp.forEach(({ el }) => svg.prepend(el))
+  temp.forEach(({ el }) => {
+    svg.prepend(el)
+    if ($(el).attr('d') && $(el).attr('class') === 'active') lineActive($(el))
+  })
 }
 const showClip = () => {
   const { clips } = data
@@ -175,17 +180,26 @@ const selectWrapper = (clip, shape) => {
   $('.video-wrap svg .active').attr('class', '')
   $('.timeline li.active').removeClass('active')
   clipRange.removeClass('active')
+  $('.video-wrap svg path[class="clone"]').remove()
   if (!clipChk) {
     clipRange.addClass('active')
+    if (shape.attr('d')) lineActive(shape)
     shape.attr('class', 'active')
-    if (shape.attr('d')) {
-      console.log(true)
-    }
     clip.addClass('active')
     const {start, end} = clip.find('div')[0].dataset
     $('#clipStart').html(timeFormat(start))
     $('#clipEnd').html(timeFormat(end))
   }
+}
+const lineActive = line => {
+  const clone = line.clone()
+  clone.attr({
+    stroke: '#d30513',
+    'stroke-width': clone.attr('stroke-width')*1 + 6,
+    class: 'clone',
+    style: ''
+  })
+  line.before(clone)
 }
 const selectOption = (e, {name, value} = e.target) => data[name] = value
 const drawEnd = (el, { duration } = data.video, start = 0, end = duration) => {
@@ -220,35 +234,35 @@ const draw = (() => {
   }
 })();
 const moveShape = (() => {
-  let moving = false, x, y, target, moveChk = 0
+  let moving = 0, x, y, target, moveChk = 0
   return e => {
     const moveWrap = $('.video-wrap .move')
     const {pageX, pageY} = e
-    switch (e.type) {
-      case 'mousedown' :
+    switch (`${e.type}${moving}`) {
+      case 'mousedown0' :
         moveWrap.addClass('active')
         target = e.currentTarget
         const {beforeX, beforeY} = target.dataset
-        moving = true, x = pageX - (beforeX || 0), y = pageY - (beforeY || 0), 
-        moveChk = target.getAttribute('transform')
+        moving = 1, x = pageX - (beforeX || 0), y = pageY - (beforeY || 0)
       break
-      case 'mousemove' :
-        if (!moving) return
-        const moveX = pageX - x, moveY = pageY - y
+      case 'mousemove1' :
+      case 'mousemove2' :
+        moving = 2
+        const [moveX, moveY] = [pageX - x, pageY - y]
+        const clone = $('.video-wrap svg .clone')[0]
         setAttr(target, { 'transform': `translate(${moveX}, ${moveY})`, 'data-before-x': moveX, 'data-before-y': moveY })
+        setAttr(clone, { 'transform': `translate(${moveX}, ${moveY})`, 'data-before-x': moveX, 'data-before-y': moveY })
       break
-      case 'mouseup' :
-        moving = false
-        moveWrap.removeClass('active')
-        if (moveChk === target.getAttribute('transform')) $(target).click()
+      case 'mouseup1' :
+      case 'mouseup2' :
+        moveWrap.removeClass('active');
+        if (moving === 1) $(target).click();
+        moving = 0
       break
     }
   }
 })();
 const changeClip = e => {
-  // if (e.type === 'drag') {
-  //   console.log(e)
-  // }
   const target = e.currentTarget
   const clip = data.clips[target.parentNode.dataset.key]
   const duration = target.dataset.duration

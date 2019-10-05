@@ -169,7 +169,7 @@ span.middle+*{display:inline-block;vertical-align:middle;}
 .video-wrap .top.active,
 .video-wrap .move.active{display:block;}
 .video-wrap svg{position:absolute;left:0;right:0;top:0;z-index:10;}
-.video-wrap svg .active{outline:3px solid #d30513}
+.video-wrap svg *:not(path).active{outline:3px solid #d30513}
 .video-wrap__duration{margin:20px 0;display:flex;justify-content:space-between}
 .video-wrap__duration>div{display:none}
 .video-wrap__duration>div.active{display:block;}
