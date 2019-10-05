@@ -58,21 +58,11 @@ const twoNum = n => `0${n}`.substr(-2)
 const timeFormat = t => [~~(t/3600)%24, ~~(t/60)%60, ~~t%60, ~~(t*100)%100].map(v => twoNum(v)).join(':')
 const timelineRange = ({start, end, duration}) => `left:${(start/duration) * 100}%;width:${((end - start)/duration) * 100}%`
 const timelineRender = arr => {
-  $('.timeline ul').empty()
-  arr.forEach((v, k) => $('.timeline ul').prepend(`
-      <li class="bar" data-key="${k}">
+  $('.timeline ul').html(arr.map((v, k) => `
+      <li data-key="${k}">
         <div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div>
       </li>
-  `))
-  $('.timeline ul div')
-    .draggable({
-      axis: "x",
-      containment: "parent",
-    })
-    .resizable({
-      handles: "e, w",
-      containment: 'parent'
-    })
+  `).join(''))
 }
 const selectEvent = e => {
   e.preventDefault()
@@ -120,7 +110,6 @@ const selectCover = (() => {
   return e => {
     clearTimeout(timer)
     $('.video-editor__object .active').removeClass('active')
-    $('.timeline').addClass('active')
     const target = e.currentTarget
     const wrap = $('.video-wrap')
     const video = data.video = wrap.find('video')[0]
@@ -150,7 +139,7 @@ const sortClip = e => {
   })
   const temp = keys.map(v => data.clips[v])
   data.clips = temp
-  temp.forEach(({ el }) => svg.prepend(el))
+  temp.forEach(({ el }) => svg.append(el))
 }
 const showClip = () => {
   const { clips } = data
@@ -161,13 +150,12 @@ const showClip = () => {
 }
 const selectShape = e => {
   const shape =  $(e.currentTarget)
-  const len = $('.timeline li').length - 1
-  const clip = $('.timeline li').eq(len - shape.index())
+  const clip = $('.timeline li').eq(shape.index())
   selectWrapper(clip, shape)
 }
 const selectClip = e => {
   const clip = $(e.currentTarget)
-  const shape = $(data.clips[clip.data('key')].el)
+  const shape = $(data.clips[clip.index()].el)
   selectWrapper(clip, shape)
 }
 const selectWrapper = (clip, shape) => {
@@ -244,25 +232,77 @@ const moveShape = (() => {
     }
   }
 })();
-const resizeClip = e => {
-  const target = e.currentTarget
-  const {end, duration} = target.dataset
-  const w = (end / duration) * 800
-  let endConvert = (parseInt(target.style.width) / 800) * duration
-  target.setAttribute('data-end', endConvert)
-  data.clips[target.parentNode.dataset.key].end = endConvert
-  $('#clipEnd').html(timeFormat(endConvert))
-}
-const moveClip = e => {
-  const target = e.currentTarget
-  const clip = data.clips[target.parentNode.dataset.key]
-  const duration = target.dataset.duration
-  const [left, width] = [target.style.left, target.style.width].map(v => (parseInt(v)/800) * duration)
-  const [start, end] = [left, width - left]
-  setAttr(target, { 'data-start': (clip.start = start), 'data-end': (clip.end = end) })
-  $('#clipStart').html(timeFormat(start))
-  $('#clipEnd').html(timeFormat(end))
-}
+const resizeClip = (() => {
+  let resizing = false, beforeX
+  return e => {
+    const wrap = e.currentTarget
+    const target = wrap.children[0]
+    switch (e.type) {
+      case 'mousemove' :
+        let x = e.offsetX + target.offsetLeft
+        if (beforeX < e.offsetX) x = e.offsetX
+        beforeX = x
+        const {end, duration} = target.dataset
+        const w = (end / duration) * 800
+        if (!resizing) {
+          wrap.classList[w-20 < x && x < w ? 'add' : 'remove']('resizing')
+        } else {
+          const end = (x / 800) * duration
+          target.setAttribute('data-end', end)
+          target.style.cssText = timelineRange(target.dataset)
+          data.clips[$(wrap).index()].end = end
+          $('#clipEnd').html(timeFormat(end))
+        }
+      break;
+      case 'mousedown' :
+        if (wrap.classList.contains('resizing')) resizing = true
+      break
+      case 'mouseup' :
+      case 'click' :
+        if (!resizing) return
+        resizing = false
+        wrap.click()
+      break
+    }
+  }
+})();
+const moveClip = (() => {
+  let moving = false, beforeX = 0, timeline = null, moved = 0
+  return e => {
+    const target = e.currentTarget
+    const clip = data.clips[$(target).parent().index()]
+    let {start, end, duration} = target.dataset
+    start *= 1, end *= 1
+    const {offsetX: ox} = e
+    timeline = timeline || $('.timeline ul')
+    switch (e.type) {
+      case 'mouseenter' : 
+      case 'mouseleave' : timeline.sortable('option', 'disabled', e.type === 'mouseenter'); break
+      case 'mousemove' :
+        if (moving) {
+          let moveX = ((ox - beforeX)/800) * duration
+          if (start*1 + moveX <= 0) {
+            moveX += Math.abs(start + moveX)
+          } else if (end + moveX >= duration) {
+            moveX -= Math.abs((end + moveX) - duration)
+          }
+          setAttr(target, { 'data-start': (clip.start = start + moveX), 'data-end': (clip.end = end + moveX) })
+          $('#clipStart').html(timeFormat(clip.start))
+          $('#clipEnd').html(timeFormat(clip.end))
+          target.style.cssText = timelineRange(clip)
+        }
+      break
+      case 'mousedown' :
+        if (ox > target.clientWidth - 20) return
+        moving = true
+        moved = clip.start
+        beforeX = ox
+      break
+      case 'mouseup' : moving = false; break
+      case 'click' : if (moved !== clip.start) e.stopPropagation(); break;
+    }
+  }
+})();
 const moveCurrent = (() => {
   let moving = false, beforeX, beforeLeft
   return e => {
@@ -345,7 +385,7 @@ const donwloadVideo = async () => {
     target.remove()
   }
 }
-$(_ => { if ($('.timeline').length) $('.timeline ul:first-child').sortable() })
+$(_ => { if ($('.timeline').length) $('.timeline ul').sortable() })
   .on('click', 'a[href="#"]', _ => false)
   .on('click', '.video-editor__object a', selectEvent)
   .on('click', '.teaser__cover a', selectCover)
@@ -357,6 +397,6 @@ $(_ => { if ($('.timeline').length) $('.timeline ul:first-child').sortable() })
   .on('click', '.video-wrap svg *', selectShape)
   .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
   .on('mouseup mousemove', '.video-wrap .move', moveShape)
-  .on('resize', '.timeline li>div', resizeClip)
-  .on('drag', '.timeline li>div', moveClip)
+  .on('click mouseup mousedown mousemove', '.timeline li', resizeClip)
+  .on('click mouseup mouseenter mouseleave mousedown mousemove', '.timeline div', moveClip)
   .on('mousedown mousemove mouseleave mouseup', '.timeline-current', moveCurrent)
