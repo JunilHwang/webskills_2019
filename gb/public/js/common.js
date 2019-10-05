@@ -260,27 +260,10 @@ const changeClip = e => {
     $('#clipEnd').html(timeFormat(end))
   }
 }
-const moveCurrent = (() => {
-  let moving = false, beforeX, beforeLeft
-  return e => {
-    switch (e.type) {
-      case 'mousedown' :
-        moving = true
-        beforeX = e.clientX
-        beforeLeft = parseInt(e.currentTarget.style.left || 0)
-      break;
-      case 'mousemove' :
-        if (!moving) return
-        let moved = beforeLeft + (e.clientX - beforeX)
-        if (moved < 0) moved = 0
-        else if(moved > 800) moved = 800
-        data.video.currentTime = (moved / 800) * data.video.duration
-      break;
-      case 'mouseup' :
-      case 'mouseleave' : if (moving) moving = false; break;
-    }
-  }
-})();
+const moveCurrent = e => {
+  const pos = parseInt(e.currentTarget.style.left)
+  data.video.currentTime = (pos / 800) * data.video.duration
+}
 const donwloadVideo = async () => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   data.clips.forEach(({ el, start, end }) => {
@@ -342,7 +325,12 @@ const donwloadVideo = async () => {
     target.remove()
   }
 }
-$(_ => { if ($('.timeline').length) $('.timeline ul:first-child').sortable() })
+$(_ => {
+  if ($('.timeline').length) {
+    $('.timeline ul:first-child').sortable()
+    $('.timeline-current').draggable({ axis: "x", containment: "parent", })
+  }
+})
   .on('click', 'a[href="#"]', _ => false)
   .on('click', '.video-editor__object a', selectEvent)
   .on('click', '.teaser__cover a', selectCover)
@@ -355,4 +343,4 @@ $(_ => { if ($('.timeline').length) $('.timeline ul:first-child').sortable() })
   .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
   .on('mouseup mousemove', '.video-wrap .move', moveShape)
   .on('drag resize', '.timeline li>div', changeClip)
-  .on('mousedown mousemove mouseleave mouseup', '.timeline-current', moveCurrent)
+  .on('drag', '.timeline-current', moveCurrent)
