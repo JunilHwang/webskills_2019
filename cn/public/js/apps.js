@@ -4,6 +4,7 @@ const model = new class {
     res.onupgradeneeded = e => {
       const idb = e.target.result
       idb.createObjectStore('pages', {keyPath: 'idx', autoIncrement: true})
+      idb.createObjectStore('images', {keyPath: 'idx', autoIncrement: true})
       this.idb = idb
     }
     return new Promise(resolve => {
@@ -36,15 +37,24 @@ const model = new class {
     }
     return JSON.parse(pages.json)
   }
+  async getImages () {
+    let pages = await model.query('fetchAll', {table: 'images'})
+    return pages
+  }
   setPage (pages) {
     model.query('update', {table: 'pages', column: {idx: 1, json: JSON.stringify(pages)}})
+  }
+  postImage (src) {
+    model.query('insert', {table: 'images', column: { src }})
   }
 }
 
 const app = async model => {
   const pageList = await model.getPage()
   const layerClose = e => {
-    if (e.keyCode === 27 && $('.layer').length) $('.layer').remove()
+    if (e.keyCode === 27 && $('.layer').length) {
+      $('.layer:last-child').remove()
+    }
   }
   const pageAdmin = async () => {
     $('body').append(pageAdmin.template().outerHTML)
@@ -145,6 +155,7 @@ const app = async model => {
     const target = pageList[key]
     target.selected = true
     $('#preview').html(target.template)
+    slide()
     model.setPage(pageList)
   }
   pageAdmin.load = e => {
@@ -153,6 +164,7 @@ const app = async model => {
       $('#preview').html(selected.template)
       $('#preview .active').click()
     }
+    slide()
   }
 
   const pageBuilder = e => {
@@ -190,13 +202,21 @@ const app = async model => {
       </div>
     `)
   }
+  pageBuilder.reset = e => {
+    if ($('#preview').html().length === 0) {
+      alert('미리보기를 선택해주세요')
+      return false
+    }
+    $('#templateOption').remove()
+    $('#preview').html(`${headerRender()}${footerRender()}`)
+    pageBuilder.save()
+  }
   pageBuilder.append = e => {
     if ($('#preview').html().length === 0) {
       alert('미리보기를 선택해주세요')
       return false
     }
     const method = e.target.dataset.method + 'Render'
-    console.log(method)
     const render = {
       visual1Render, visual2Render,
       feature1Render, feature2Render,
@@ -204,6 +224,7 @@ const app = async model => {
       contact1Render, contact2Render
     }[method]()
     $('#preview footer').before(render)
+    slide()
   }
   pageBuilder.select = e => {
     const before = $('#preview>.active').removeClass('active')
@@ -216,17 +237,30 @@ const app = async model => {
     pageBuilder.save()
   }
   pageBuilder.optionOpen = e => {
-    const selected = $('#preview>.active')
-    const key = selected.attr('data-render') + 'OptionRender'
-    const {option, filter} = selected[0].dataset
-    if (key === 'headerOptionRender') option.urls = pageList.map(v => v.id)
-    const renderer = { headerOptionRender }[key]
+    let selected = $('#preview>.active')
+    const key = selected.attr('data-render')
+    const filter = selected[0].dataset.filter || null
+    const urls = pageList.map(v => v.id)
+    selected.removeAttr('data-filter')
+    let option = selected[0].dataset.option
+    if (typeof option === 'string') option = JSON.parse(option)
+    console.log(key.replace(/(1|2)/, '')+'OptionRender')
+    const optionRenderer = {
+      headerOptionRender, visualOptionRender, featureOptionRender
+    }[key.replace(/(1|2)/, '')+'OptionRender']
+    const templateRenderer = {
+      headerRender, footerRender,
+      visual1Render, visual2Render,
+      feature1Render, feature2Render,
+      gallery1Render, gallery2Render,
+      contact1Render, contact2Render
+    }[key + 'Render']
     const layer = $(`
       <div class="layer">
         <span class="middle"></span><div>
           <a href="#" class="layer__close">X</a>
           <h3 class="layer__title">옵션 설정</h3>
-          ${renderer(option, filter)}
+          ${optionRenderer(option, filter, urls)}
         </div>
       </div>`)
     $('body').append(layer)
@@ -249,33 +283,133 @@ const app = async model => {
         const action = frm.action.value
         switch (action) {
           case 'header' :
-            const uploaded = $('#logoUploaded')
-            const logo = uploaded.length ? uploaded[0].src : (frm.logo.value || null)
-            const menu = [];
-            frm.menu_title.forEach((v, k) => {
-              if (v.value.length > 0) {
-                menu.push({
-                  title: v.value,
-                  url: frm.menu_url[k].value
-                })
-              }
-            })
-            if (menu.length < 3) {
-              alert('메뉴는 최소 3개 이상 입력해야됩니다.')
-              return false
+            if ([null, 'logo'].indexOf(filter) !== -1) {
+              const uploaded = $('#logoUploaded')
+              const logo = uploaded.length ? uploaded[0].src : (frm.logo.value || null)
+              Object.assign(option, { logo })
             }
-            const temp = $(headerRender({logo, menu}))
+            if ([null, 'menu'].indexOf(filter) !== -1) {
+              const menu = [];
+              frm.menu_title.forEach((v, k) => {
+                if (v.value.length > 0) {
+                  menu.push({
+                    title: v.value,
+                    url: frm.menu_url[k].value
+                  })
+                }
+              })
+              if (menu.length < 3) {
+                alert('메뉴는 최소 3개 이상 입력해야됩니다.')
+                return false
+              }
+              Object.assign(option, { menu })
+            }
+          break
+          case 'visual' :
+            option.title = option.title || {}
+            option.description = option.description || {}
+            option.btn = option.btn || {}
+            if (filter === null) {
+              option.title.hide = frm.title_hide.value*1
+              option.description.hide = frm.description_hide.value*1
+              option.btn.hide = frm.btn_hide.value*1
+            }
+            if (['title', 'description'].indexOf(filter) !== -1){
+              const [text, color, size] = [frm.text.value, frm.color.value, frm.size.value]
+              option[filter].style  = color ? `color:${color};` : ''
+              option[filter].style += size ? `font-size:${size}px;` : ''
+              option[filter] = {...option[filter], text, color, size}
+            }
+            if (filter === 'btn'){
+              const [text, url] = [frm.text.value, frm.url.value]
+              option[filter] = {...option[filter], text, url}
+            }
+          break;
+          case 'feature' :
+            if (filter === null) {
+              option.title = frm.title.value
+              option.hide = {
+                title: frm.hide_title.value*1,
+                icon: frm.hide_icon.value*1,
+                desc: frm.hide_desc.value*1,
+                link: frm.hide_link.value*1
+              }
+            } else {
+              const [type, k] = filter.split(',')
+              const init = { title: null, desc: null, link: null, icon: null, }
+              option.article = option.article || [{...init}, {...init}, {...init}]
+              const article = option.article[k]
+              let text, color, size, url, style
+              switch (type) {
+                case 'title' :
+                case 'desc' :
+                  [text, color, size] = [frm.text.value, frm.color.value, frm.size.value * 1];
+                  style  = color ? `color:${color};` : ''
+                  style += size ? `font-size:${size}px;` : ''
+                  article[type] = {text, color, size, style}
+                break
+                case 'link' :
+                  [text, url] = [frm.text.value, frm.url.value];
+                  article[type] = {text, url}
+                break
+                case 'icon' :
+                  article[type] = frm.icon.value
+                break
+              }
+            }
+          break;
+        }
+        const temp = $(templateRenderer(option))
+        temp.addClass('active')
+        selected[0].outerHTML = temp[0].outerHTML
+        selected = $('#preview>.active')
+        $('.layer').remove()
+        pageBuilder.save()
+        if (action === 'visual') slide()
+      })
+      .on('click', '#visualImageUpdate', async () => {
+        const uploaded = await model.getImages()
+        const layer = $(visualImageRender(option.image || [], uploaded))
+        $('body').append(layer)
+        layer
+          .on('change', '[name="uploaded"]', e => {
+            const files = e.target.files
+            if (files.length) {
+              const file = files[0]
+              const reader = new FileReader()
+              reader.onload = () => {
+                const src = reader.result
+                model.postImage(src)
+                uploaded.push({ src })
+                const rerender = $(visualImageRender(option.image || [], uploaded)).html()
+                layer.html(rerender)
+              }
+              reader.readAsDataURL(file)
+            }          
+          })
+          .on('change', '[name="img"]', e => {
+            const image = []
+            e.target.form.img.forEach(v => {
+              if (v.checked) image.push(v.value)
+            })
+            if (image.length === 0) {
+              e.target.checked = true
+              image.push(e.target.value)
+            }
+            option.image = image
+            const temp = $(templateRenderer(option))
             temp.addClass('active')
             selected[0].outerHTML = temp[0].outerHTML
-            $('.layer').remove()
+            selected = $('#preview>.active')
             pageBuilder.save()
-          break
-        }
+            slide()
+          })
       })
   }
   pageBuilder.optionOpenFilter = e => {
     const filter = e.currentTarget.dataset.context
     const parent = $(e.currentTarget).closest('[data-render]')
+    parent.click()
     parent.attr('data-filter', filter)
     $('#templateOption').click()
     return false
@@ -284,17 +418,56 @@ const app = async model => {
     pageList.find(v => v.selected).template = $('#preview').html()
     model.setPage(pageList)
   }
+  const slide = () => {
+    $('.visual1').each(function () {
+      const wrap = $(this)
+      let pos = 0
+      const len = wrap.find('.slide').length
+      wrap.find('.slide').eq(pos).addClass('active')
+      setInterval(() => {
+        wrap.find('.slide.active').removeClass('active')
+        pos = (pos + 1) % len
+        wrap.find('.slide').eq(pos).addClass('active')
+      }, 3000)
+
+    })
+    $('.visual2').each(function () {
+      const wrap = $(this)
+      let pos = 0
+      const len = wrap.find('.slide').length
+      wrap.find('.slide-section').css({
+        'width': len * 100 + '%',
+        'margin-left': 0
+      })
+      wrap.find('.none').removeClass('none')
+      wrap.find('.prev').addClass('none')
+      wrap.find('.slide').css('width', 100 / len + '%')
+      const play = () => {
+        pos = (pos + 1) % len
+        wrap.find('.slide-section').css('margin-left', -pos * 100 + '%')
+        wrap.find('.none').removeClass('none')
+        if (pos === 0) wrap.find('.prev').addClass('none')
+        if (pos === len - 1) wrap.find('.next').addClass('none')
+      }
+      wrap.on('click', '.slide-btn:not(.none)', e => {
+        if ($(e.currentTarget).hasClass('prev')) pos -= 2
+        play()
+      })
+
+    })
+  }
 
   $(pageAdmin.load)
     .on('click', 'a[href="#"]', () => false)
     .on('click', '#pageAdmin', pageAdmin)
-    .on('click', '.layer__close', () => $('.layer').remove())
+    .on('click', '.layer__close', e => $(e.currentTarget).closest('.layer').remove())
     .on('click', '#pageAdd', pageAdmin.add)
     .on('click', '#pagePut', pageAdmin.put)
     .on('click', '#pageUpdate', pageAdmin.update)
     .on('keyup', '#pageAdminTpl input', e => { if (e.keyCode === 13) pageAdmin.put(e) })
     .on('click', '.preview', pageAdmin.preview)
     .on('click', '#pageBuilder', pageBuilder)
+    .on('click', '#pageReset', pageBuilder.reset)
     .on('click', '#buildType .btn', pageBuilder.append)
     .on('click', '#preview>*', pageBuilder.select)
     .on('click', '#templateOption', pageBuilder.optionOpen)
