@@ -58,21 +58,18 @@ const twoNum = n => `0${n}`.substr(-2)
 const timeFormat = t => [~~(t/3600)%24, ~~(t/60)%60, ~~t%60, ~~(t*100)%100].map(v => twoNum(v)).join(':')
 const timelineRange = ({start, end, duration}) => `left:${(start/duration) * 100}%;width:${((end - start)/duration) * 100}%`
 const timelineRender = arr => {
-  $('.timeline ul').empty()
-  arr.forEach((v, k) => $('.timeline ul').prepend(`
-      <li class="bar" data-key="${k}">
-        <div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div>
-      </li>
-  `))
-  $('.timeline ul div')
-    .draggable({
-      axis: "x",
-      containment: "parent",
-    })
-    .resizable({
-      handles: "e, w",
-      containment: 'parent'
-    })
+  const k = arr.length - 1
+  const v = arr[k]
+  const liText = `
+    <li class="bar" data-key="${k}">
+      <div data-start="${v.start}" data-end="${v.end}" data-duration="${v.duration}" style="${timelineRange(v)}"></div>
+    </li>
+  `
+  $(liText)
+    .prependTo('.timeline ul')
+    .find('div')
+    .draggable({ axis: "x", containment: "parent", })
+    .resizable({ handles: "e, w", containment: 'parent' })
 }
 const selectEvent = e => {
   e.preventDefault()
@@ -85,12 +82,15 @@ const selectEvent = e => {
   const selected = e.target['id']
   switch (true) {
     case selected === 'one' :
-      const clip = $('.timeline li.active'), index = clip.index()
-      if (index === -1) {
+      const timeline = $('.timeline')
+      const clip = timeline.find('li.active')
+      if (clip.length === 0) {
         alert('선택된게 없습니다.')
         return
       }
+      const index = clip.data('key')
       clip.remove()
+      timeline.find('li').each((k, v) => v.setAttribute('data-key', timeline.find('li').length - k - 1))
       data.clips[index].el.remove()
       data.clips.splice(index, 1)
       if (data.clips.length === 0) $('.timeline ul').empty()
@@ -133,9 +133,7 @@ const selectCover = (() => {
     }
     timer = setInterval(() => {
       $('#current').html(timeFormat(video.currentTime))
-      $('.timeline-current').css({
-        left: (video.currentTime / video.duration) * 800 + 'px'
-      })
+      $('.timeline-current').css({ left: (video.currentTime / video.duration) * 800 + 'px' })
       showClip()
     }, (1000 / 60))
   }
@@ -166,9 +164,9 @@ const selectShape = e => {
   selectWrapper(clip, shape)
 }
 const selectClip = e => {
-  const clip = $(e.currentTarget)
-  const shape = $(data.clips[clip.data('key')].el)
-  selectWrapper(clip, shape)
+  const clip = e.currentTarget
+  const shape = $(data.clips[clip.dataset.key].el)
+  selectWrapper($(clip), shape)
 }
 const selectWrapper = (clip, shape) => {
   const clipChk = clip.hasClass('active')
@@ -180,6 +178,9 @@ const selectWrapper = (clip, shape) => {
   if (!clipChk) {
     clipRange.addClass('active')
     shape.attr('class', 'active')
+    if (shape.attr('d')) {
+      console.log(true)
+    }
     clip.addClass('active')
     const {start, end} = clip.find('div')[0].dataset
     $('#clipStart').html(timeFormat(start))
@@ -244,24 +245,20 @@ const moveShape = (() => {
     }
   }
 })();
-const resizeClip = e => {
-  const target = e.currentTarget
-  const {end, duration} = target.dataset
-  const w = (end / duration) * 800
-  let endConvert = (parseInt(target.style.width) / 800) * duration
-  target.setAttribute('data-end', endConvert)
-  data.clips[target.parentNode.dataset.key].end = endConvert
-  $('#clipEnd').html(timeFormat(endConvert))
-}
-const moveClip = e => {
+const changeClip = e => {
+  // if (e.type === 'drag') {
+  //   console.log(e)
+  // }
   const target = e.currentTarget
   const clip = data.clips[target.parentNode.dataset.key]
   const duration = target.dataset.duration
   const [left, width] = [target.style.left, target.style.width].map(v => (parseInt(v)/800) * duration)
-  const [start, end] = [left, width - left]
+  const [start, end] = [left, left + width]
   setAttr(target, { 'data-start': (clip.start = start), 'data-end': (clip.end = end) })
-  $('#clipStart').html(timeFormat(start))
-  $('#clipEnd').html(timeFormat(end))
+  if ($(target.parentNode).hasClass('active')) {
+    $('#clipStart').html(timeFormat(start))
+    $('#clipEnd').html(timeFormat(end))
+  }
 }
 const moveCurrent = (() => {
   let moving = false, beforeX, beforeLeft
@@ -357,6 +354,5 @@ $(_ => { if ($('.timeline').length) $('.timeline ul:first-child').sortable() })
   .on('click', '.video-wrap svg *', selectShape)
   .on('mousedown', '.video-wrap svg [class="active"]', moveShape)
   .on('mouseup mousemove', '.video-wrap .move', moveShape)
-  .on('resize', '.timeline li>div', resizeClip)
-  .on('drag', '.timeline li>div', moveClip)
+  .on('drag resize', '.timeline li>div', changeClip)
   .on('mousedown mousemove mouseleave mouseup', '.timeline-current', moveCurrent)
